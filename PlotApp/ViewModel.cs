@@ -53,6 +53,8 @@ namespace PlotApp
 			get => _plotVisibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
 		}
 
+		public DrawMarginFrame Frame => ClassParameters.drawMarginFrame;
+
 		public IEnumerable<ICartesianAxis> XAxis
 		{
 			get => _xAxis;
@@ -161,25 +163,25 @@ namespace PlotApp
 			{
 				new Axis
 				{
-					SeparatorsPaint = new SolidColorPaint(SkiaSharp.SKColors.LightBlue),
+					SeparatorsPaint = new SolidColorPaint(ClassParameters.s_gray),
+					SubticksPaint = new SolidColorPaint
+					{
+						Color = ClassParameters.s_gray,
+						StrokeThickness = 1
+					}
 					
-					/*
-					 * LabelsPaint = new SolidColorPaint
-            {
-                Color = SKColors.Blue,
-                FontFamily = "Times New Roman",
-                SKFontStyle = new SKFontStyle(
-                    SKFontStyleWeight.ExtraBold,
-                    SKFontStyleWidth.Normal,
-                    SKFontStyleSlant.Italic)
-            },*/
 				}
 			};
 			YAxis = new Axis[]
 			{
 				new Axis
 				{
-					SeparatorsPaint = new SolidColorPaint(SkiaSharp.SKColors.LightBlue),
+					SeparatorsPaint = new SolidColorPaint(ClassParameters.s_gray),
+					SubticksPaint = new SolidColorPaint
+					{
+						Color = ClassParameters.s_gray,
+						StrokeThickness = 1
+					}
 				}
 			};
 		}
