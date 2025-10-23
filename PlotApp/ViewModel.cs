@@ -1,6 +1,7 @@
 ﻿using LiveChartsCore;
 using LiveChartsCore.Defaults;
 using LiveChartsCore.Kernel.Sketches;
+using LiveChartsCore.Measure;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
 using Microsoft.UI.Windowing;
@@ -23,6 +24,7 @@ namespace PlotApp
 		private Visibility _plotVisibility = Visibility.Collapsed;
 		private ISeries[] _series;
 		private IEnumerable<ICartesianAxis> _xAxis, _yAxis;
+		private LegendPosition _legendPosition = LegendPosition.Hidden;
 		private int _selInd;
 		public ISeries[] Series { get => _series; set { _series = value; OnPropertyChanged(nameof(Series)); } }
 		public ObservableCollection<DataItem> Model
@@ -69,6 +71,15 @@ namespace PlotApp
 				OnPropertyChanged(nameof(YAxis));
 			}
 		}
+		public LegendPosition LegVisible
+		{
+			get => _legendPosition;
+			set
+			{
+				_legendPosition = value;
+				OnPropertyChanged(nameof(LegVisible));
+			}
+		}
 
 		public int SelInd
 		{
@@ -108,7 +119,8 @@ namespace PlotApp
 			Model.RemoveAt(index);
 			_points.RemoveAt(index);
 		}
-
+		
+		//потом туда сделать интерполяцию
 		public void SetSmooth()
 		{
 			if (Series != null)
@@ -116,6 +128,7 @@ namespace PlotApp
 		}
 
 		public void UnsetSmooth() => (Series[0] as LineSeries<ObservablePoint>).LineSmoothness = 0;
+		public void ToggleLegend() => LegVisible = LegVisible==LegendPosition.Hidden ? LegendPosition.Bottom : LegendPosition.Hidden; 
 		public void ChangeColor(object sender, ColorChangedEventArgs e)
 		{
 			(Series[0] as LineSeries<ObservablePoint>).Stroke = new SolidColorPaint(SkiaSharp.SKColor.Parse(e.NewColor.ToString()), 4);
@@ -140,6 +153,7 @@ namespace PlotApp
 
 		}
 
+
 		// Также не забыть про копию графика в буфер обмена
 		public ViewModel()
 		{
@@ -148,6 +162,17 @@ namespace PlotApp
 				new Axis
 				{
 					SeparatorsPaint = new SolidColorPaint(SkiaSharp.SKColors.LightBlue),
+					
+					/*
+					 * LabelsPaint = new SolidColorPaint
+            {
+                Color = SKColors.Blue,
+                FontFamily = "Times New Roman",
+                SKFontStyle = new SKFontStyle(
+                    SKFontStyleWeight.ExtraBold,
+                    SKFontStyleWidth.Normal,
+                    SKFontStyleSlant.Italic)
+            },*/
 				}
 			};
 			YAxis = new Axis[]

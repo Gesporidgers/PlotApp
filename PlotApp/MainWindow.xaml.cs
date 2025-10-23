@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using LiveChartsCore;
 using LiveChartsCore.Kernel.Sketches;
 using LiveChartsCore.SkiaSharpView;
 using Microsoft.UI.Xaml;
@@ -60,6 +61,7 @@ namespace PlotApp
 			contentDialog.Title = "Введите название оси X";
 			contentDialog.Content = new EnterName();
 			contentDialog.PrimaryButtonText = "OK";
+			contentDialog.PrimaryButtonStyle = Application.Current.Resources["AccentButtonStyle"] as Style;
 			contentDialog.PrimaryButtonClick += EnterAxisName;
 			contentDialog.SecondaryButtonText = "Отмена";
 			await contentDialog.ShowAsync();
@@ -72,6 +74,7 @@ namespace PlotApp
 			contentDialog.Title = "Введите название оси Y";
 			contentDialog.Content = new EnterName();
 			contentDialog.PrimaryButtonText = "OK";
+			contentDialog.PrimaryButtonStyle = Application.Current.Resources["AccentButtonStyle"] as Style;
 			contentDialog.PrimaryButtonClick += EnterAxisName;
 			contentDialog.SecondaryButtonText = "Отмена";
 			await contentDialog.ShowAsync();
@@ -98,8 +101,29 @@ namespace PlotApp
 							_viewModel.YAxis = a;
 							break;
 						}
+					case "Series":
+						{
+
+							_viewModel.Series[0].Name = content.EnteredText;
+							
+							break;
+						}
 				}
 			}
+		}
+
+		private async void EnterName_Click(object sender, RoutedEventArgs e)
+		{
+			ContentDialog contentDialog = new ContentDialog();
+			contentDialog.XamlRoot = (sender as MenuFlyoutItem).XamlRoot;
+			contentDialog.Name = "Series";
+			contentDialog.Title = "Введите название графика";
+			contentDialog.Content = new EnterName();
+			contentDialog.PrimaryButtonText = "OK";
+			contentDialog.PrimaryButtonStyle = Application.Current.Resources["AccentButtonStyle"] as Style;
+			contentDialog.PrimaryButtonClick += EnterAxisName;
+			contentDialog.SecondaryButtonText = "Отмена";
+			await contentDialog.ShowAsync();
 		}
 	}
 
