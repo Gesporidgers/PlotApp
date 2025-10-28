@@ -14,6 +14,7 @@ using Microsoft.UI.Xaml.Navigation;
 using Microsoft.Windows.Storage.Pickers;
 using PlotApp.Dialogs;
 using PlotApp.Model;
+using ScottPlot.AxisPanels;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 
@@ -84,31 +85,38 @@ namespace PlotApp
 		{
 			if (sender is ContentDialog dialog)
 			{
-				/*var content = dialog.Content as EnterName;
+				var content = dialog.Content as EnterName;
 				switch (dialog.Name)
 				{
 					case "X":
 						{
-							ICartesianAxis[] a = _viewModel.XAxis.ToArray();
-							a[0].Name = content.EnteredText;
-							_viewModel.XAxis = a;
+							BottomAxis axis = new BottomAxis
+							{
+								LabelText = content.EnteredText,
+								LabelFontName = "Times New Roman"
+							};
+							mainplot.Plot.Axes.Remove(mainplot.Plot.Axes.Bottom);
+							mainplot.Plot.Axes.AddBottomAxis(axis);
 							break;
 						}
 					case "Y":
 						{
-							ICartesianAxis[] a = _viewModel.YAxis.ToArray();
-							a[0].Name = content.EnteredText;
-							_viewModel.YAxis = a;
+							LeftAxis axis = new LeftAxis
+							{
+								LabelText = content.EnteredText,
+								LabelFontName = "Times New Roman"
+							};
+							mainplot.Plot.Axes.Remove(mainplot.Plot.Axes.Left);
+							mainplot.Plot.Axes.AddLeftAxis(axis);
 							break;
 						}
 					case "Series":
 						{
 
-							_viewModel.Series[0].Name = content.EnteredText;
-							
 							break;
 						}
-				}*/
+				}
+				mainplot.Refresh();
 			}
 		}
 
@@ -124,12 +132,6 @@ namespace PlotApp
 			contentDialog.PrimaryButtonClick += EnterAxisName;
 			contentDialog.SecondaryButtonText = "Отмена";
 			await contentDialog.ShowAsync();
-		}
-
-		private void PlusBtn_Click(object sender, RoutedEventArgs e)
-		{
-			_viewModel.AddRow();
-			//mainplot.Plot.Add.Scatter(new DataItem());
 		}
 	}
 

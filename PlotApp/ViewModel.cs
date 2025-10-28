@@ -61,9 +61,6 @@ namespace PlotApp
 				OnPropertyChanged(nameof(isSmooth));
 			}
 		}
-
-
-
 		public int SelInd
 		{
 			get => _selInd;
@@ -85,7 +82,7 @@ namespace PlotApp
 					UpdatePlot();
 				};
 				PlotVisibility = Visibility.Visible;
-				if (Model.Count >2)
+				if (Model.Count > 2)
 					InitSpline();
 				
 			}

@@ -39,7 +39,7 @@
         </MenuBar>
         <controls:DataGrid Grid.Column="0" Grid.Row="1" x:Name="dataGrid" AutoGenerateColumns="True" SelectedIndex="{x:Bind _viewModel.SelInd, Mode=TwoWay}" ItemsSource="{x:Bind _viewModel.Model, Mode=TwoWay}" KeyDown="dataGrid_KeyDown"/>
         <StackPanel Grid.Row="2" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center" VerticalAlignment="Top">
-            <Button Click="PlusBtn_Click" x:Name="PlusBtn">
+            <Button Click="{x:Bind _viewModel.AddRow}" x:Name="PlusBtn">
                 <SymbolIcon Symbol="Add"/>
             </Button>
             <Button Click="Button_Click">
