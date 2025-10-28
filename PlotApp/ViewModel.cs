@@ -2,8 +2,10 @@
 using LiveChartsCore.Defaults;
 using LiveChartsCore.Kernel.Sketches;
 using LiveChartsCore.Measure;
+using LiveChartsCore.Painting;
 using LiveChartsCore.SkiaSharpView;
 using LiveChartsCore.SkiaSharpView.Painting;
+using LiveChartsCore.SkiaSharpView.Painting.Effects;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -121,7 +123,7 @@ namespace PlotApp
 			Model.RemoveAt(index);
 			_points.RemoveAt(index);
 		}
-		
+
 		//потом туда сделать интерполяцию
 		public void SetSmooth()
 		{
@@ -129,12 +131,29 @@ namespace PlotApp
 				(Series[0] as LineSeries<ObservablePoint>).LineSmoothness = .65;
 		}
 
-		public void UnsetSmooth() => (Series[0] as LineSeries<ObservablePoint>).LineSmoothness = 0;
-		public void ToggleLegend() => LegVisible = LegVisible==LegendPosition.Hidden ? LegendPosition.Bottom : LegendPosition.Hidden; 
+		public void UnsetSmooth()
+		{
+			(Series[0] as LineSeries<ObservablePoint>).LineSmoothness = 0;
+		}
+		public void ToggleLegend() => LegVisible = LegVisible == LegendPosition.Hidden ? LegendPosition.Bottom : LegendPosition.Hidden;
 		public void ChangeColor(object sender, ColorChangedEventArgs e)
 		{
 			(Series[0] as LineSeries<ObservablePoint>).Stroke = new SolidColorPaint(SkiaSharp.SKColor.Parse(e.NewColor.ToString()), 4);
 			(Series[0] as LineSeries<ObservablePoint>).GeometryStroke = new SolidColorPaint(SkiaSharp.SKColor.Parse(e.NewColor.ToString()), 4);
+		}
+		public void DashLine()
+		{
+			Paint strk = (Series[0] as LineSeries<ObservablePoint>).Stroke;
+			SolidColorPaint newStyle = strk as SolidColorPaint;
+			newStyle.PathEffect = ClassParameters.dashEffect;
+			(Series[0] as LineSeries<ObservablePoint>).Stroke = newStyle;
+		}
+		public void UndashLine()
+		{
+			Paint strk = (Series[0] as LineSeries<ObservablePoint>).Stroke;
+			SolidColorPaint newStyle = strk as SolidColorPaint;
+			newStyle.PathEffect = new DashEffect(new float[2]);
+			(Series[0] as LineSeries<ObservablePoint>).Stroke = newStyle;
 		}
 
 		// Будем делать импорт из CSV. Также можно и json (но вряд-ли нужно
@@ -169,7 +188,7 @@ namespace PlotApp
 						Color = ClassParameters.s_gray,
 						StrokeThickness = 1
 					}
-					
+
 				}
 			};
 			YAxis = new Axis[]

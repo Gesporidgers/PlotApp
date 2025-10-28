@@ -49,7 +49,7 @@
         <lvc:CartesianChart Grid.Column="1" Grid.Row="1" DrawMarginFrame="{x:Bind _viewModel.Frame}" LegendPosition="{x:Bind _viewModel.LegVisible, Mode=OneWay}" Visibility="{x:Bind _viewModel.PlotVisibility, Mode=OneWay}" Series="{x:Bind _viewModel.Series,Mode=TwoWay}" ZoomMode="Both" XAxes="{x:Bind _viewModel.XAxis, Mode=OneWay}" YAxes="{x:Bind _viewModel.YAxis,Mode=OneWay}"/>
         <TextBlock Text="Заполните данные" Grid.Column="1" Grid.Row="1" VerticalAlignment="Center" FontSize="20" FontWeight="Light" HorizontalAlignment="Center" Visibility="{x:Bind _viewModel.WarningVisibility, Mode=OneWay}"/>
         <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal" Spacing="7">
-            <CheckBox Content="Сглаживание графика" IsChecked="True" Checked="{x:Bind _viewModel.SetSmooth}" Unchecked="{x:Bind _viewModel.UnsetSmooth}"/>
+            <CheckBox Content="Интерполяция графика" IsChecked="True" Checked="{x:Bind _viewModel.SetSmooth}" Unchecked="{x:Bind _viewModel.UnsetSmooth}"/>
             <Button Content="Цвет графика">
                 <Button.Flyout>
                     <Flyout>
@@ -61,7 +61,9 @@
                     </Flyout>
                 </Button.Flyout>
             </Button>
-            
+            <TextBlock Text="Стиль линии:" VerticalAlignment="Center" Margin="20 0 0 0"/>
+            <RadioButton Content="Сплошная" Checked="{x:Bind _viewModel.UndashLine}"/>
+            <RadioButton Content="Пунктирная" Checked="{x:Bind _viewModel.DashLine}"/>
         </StackPanel>
     </Grid>
 </Window>

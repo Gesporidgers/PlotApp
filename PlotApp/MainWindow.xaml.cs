@@ -30,6 +30,7 @@ namespace PlotApp
     public sealed partial class MainWindow : Window
     {
         private ViewModel _viewModel = new ViewModel();
+		int status = 0;
 		public MainWindow()
         {
             InitializeComponent();
