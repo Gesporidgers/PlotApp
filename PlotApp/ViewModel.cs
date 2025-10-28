@@ -1,17 +1,14 @@
-﻿using LiveChartsCore;
-using LiveChartsCore.Defaults;
-using LiveChartsCore.Kernel.Sketches;
-using LiveChartsCore.Measure;
-using LiveChartsCore.Painting;
-using LiveChartsCore.SkiaSharpView;
-using LiveChartsCore.SkiaSharpView.Painting;
-using LiveChartsCore.SkiaSharpView.Painting.Effects;
+﻿
+using MathNet.Numerics;
+using MathNet.Numerics.Interpolation;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Windows.Storage.Pickers;
 using PlotApp.Model;
 using PlotApp.Util;
+using ScottPlot;
+using ScottPlot.WinUI;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -22,13 +19,14 @@ namespace PlotApp
 	internal sealed class ViewModel : BindHelper
 	{
 		private ObservableCollection<DataItem> _model;
-		private ObservableCollection<ObservablePoint> _points;
+		private ObservableCollection<Coordinates> _points;
 		private Visibility _plotVisibility = Visibility.Collapsed;
-		private ISeries[] _series;
-		private IEnumerable<ICartesianAxis> _xAxis, _yAxis;
-		private LegendPosition _legendPosition = LegendPosition.Hidden;
+		private CubicSpline spline;
+		private WinUIPlot plot;
+		private bool _isSmooth = false;
+
 		private int _selInd;
-		public ISeries[] Series { get => _series; set { _series = value; OnPropertyChanged(nameof(Series)); } }
+
 		public ObservableCollection<DataItem> Model
 		{
 			get => _model;
@@ -54,36 +52,17 @@ namespace PlotApp
 		{
 			get => _plotVisibility == Visibility.Visible ? Visibility.Collapsed : Visibility.Visible;
 		}
+		public bool isSmooth
+		{
+			get => _isSmooth;
+			set
+			{
+				_isSmooth = value;
+				OnPropertyChanged(nameof(isSmooth));
+			}
+		}
 
-		public DrawMarginFrame Frame => ClassParameters.drawMarginFrame;
 
-		public IEnumerable<ICartesianAxis> XAxis
-		{
-			get => _xAxis;
-			set
-			{
-				_xAxis = value;
-				OnPropertyChanged(nameof(XAxis));
-			}
-		}
-		public IEnumerable<ICartesianAxis> YAxis
-		{
-			get => _yAxis;
-			set
-			{
-				_yAxis = value;
-				OnPropertyChanged(nameof(YAxis));
-			}
-		}
-		public LegendPosition LegVisible
-		{
-			get => _legendPosition;
-			set
-			{
-				_legendPosition = value;
-				OnPropertyChanged(nameof(LegVisible));
-			}
-		}
 
 		public int SelInd
 		{
@@ -100,22 +79,25 @@ namespace PlotApp
 			if (Model == null)
 			{
 				Model = new ObservableCollection<DataItem>();
-				_points = new ObservableCollection<ObservablePoint>();
-				Series = [
-					new LineSeries<ObservablePoint>{
-					Values = _points,Fill = null
-					}
-				];
-
+				_points = new ObservableCollection<Coordinates>();
+				_points.CollectionChanged += (s, e) =>
+				{
+					UpdatePlot();
+				};
 				PlotVisibility = Visibility.Visible;
+				if (Model.Count >2)
+					InitSpline();
+				
 			}
 			Model.Add(new DataItem());
+			_points.Add(new DataItem());
 			Model[Model.Count - 1].PropertyChanged += (s, e) =>
 			{
+				if (isSmooth)
+					UnsetSmooth();
 				_points[SelInd] = Model[SelInd];
+				InitSpline();
 			};
-			_points.Add(Model.Last());
-
 		}
 
 		public void DeleteRow(int index)
@@ -127,33 +109,46 @@ namespace PlotApp
 		//потом туда сделать интерполяцию
 		public void SetSmooth()
 		{
-			if (Series != null)
-				(Series[0] as LineSeries<ObservablePoint>).LineSmoothness = .65;
+			_points.Clear();
+			for (double i = Model[0].X; i <= Model[Model.Count - 1].X; i += 0.125)
+			{
+				double y = spline.Interpolate(i);
+				_points.Add(new Coordinates(i, y));
+			}
+			isSmooth = true;
+			UpdatePlot();
 		}
 
 		public void UnsetSmooth()
 		{
-			(Series[0] as LineSeries<ObservablePoint>).LineSmoothness = 0;
+			_points.Clear();
+			foreach (var item in Model)
+			{
+				_points.Add(item);
+			}
+			isSmooth = false;
 		}
-		public void ToggleLegend() => LegVisible = LegVisible == LegendPosition.Hidden ? LegendPosition.Bottom : LegendPosition.Hidden;
+		public void ToggleLegend()
+		{
+		}/* LegVisible = LegVisible == LegendPosition.Hidden ? LegendPosition.Bottom : LegendPosition.Hidden;*/
 		public void ChangeColor(object sender, ColorChangedEventArgs e)
 		{
-			(Series[0] as LineSeries<ObservablePoint>).Stroke = new SolidColorPaint(SkiaSharp.SKColor.Parse(e.NewColor.ToString()), 4);
-			(Series[0] as LineSeries<ObservablePoint>).GeometryStroke = new SolidColorPaint(SkiaSharp.SKColor.Parse(e.NewColor.ToString()), 4);
+			//(Series[0] as LineSeries<ObservablePoint>).Stroke = new SolidColorPaint(SkiaSharp.SKColor.Parse(e.NewColor.ToString()), 4);
+			//(Series[0] as LineSeries<ObservablePoint>).GeometryStroke = new SolidColorPaint(SkiaSharp.SKColor.Parse(e.NewColor.ToString()), 4);
 		}
 		public void DashLine()
 		{
-			Paint strk = (Series[0] as LineSeries<ObservablePoint>).Stroke;
-			SolidColorPaint newStyle = strk as SolidColorPaint;
-			newStyle.PathEffect = ClassParameters.dashEffect;
-			(Series[0] as LineSeries<ObservablePoint>).Stroke = newStyle;
+			//Paint strk = (Series[0] as LineSeries<ObservablePoint>).Stroke;
+			//SolidColorPaint newStyle = strk as SolidColorPaint;
+			//newStyle.PathEffect = ClassParameters.dashEffect;
+			//(Series[0] as LineSeries<ObservablePoint>).Stroke = newStyle;
 		}
 		public void UndashLine()
 		{
-			Paint strk = (Series[0] as LineSeries<ObservablePoint>).Stroke;
-			SolidColorPaint newStyle = strk as SolidColorPaint;
-			newStyle.PathEffect = new DashEffect(new float[2]);
-			(Series[0] as LineSeries<ObservablePoint>).Stroke = newStyle;
+			//Paint strk = (Series[0] as LineSeries<ObservablePoint>).Stroke;
+			//SolidColorPaint newStyle = strk as SolidColorPaint;
+			//newStyle.PathEffect = new DashEffect(new float[2]);
+			//(Series[0] as LineSeries<ObservablePoint>).Stroke = newStyle;
 		}
 
 		// Будем делать импорт из CSV. Также можно и json (но вряд-ли нужно
@@ -162,47 +157,56 @@ namespace PlotApp
 			List<DataItem> data = CSVImporter.Import(path);
 			if (data != null)
 			{
-				Model = new ObservableCollection<DataItem>(data);
-				_points = new ObservableCollection<ObservablePoint>(Model.Select((i) => new ObservablePoint(i.X, i.Y)));
-				PlotVisibility = Visibility.Visible;
-				Series = [
-					new LineSeries<ObservablePoint>{
-					Values = _points,Fill = null
+				if (Model == null)
+				{
+					Model = new ObservableCollection<DataItem>(data);
+					_points = new ObservableCollection<Coordinates>(Model.Select(p => new Coordinates(p.X, p.Y)));
+					_points.CollectionChanged += (s, e) =>
+					{
+						UpdatePlot();
+					};
+					InitSpline();
+					UpdatePlot();
+				}
+				else
+				{
+					Model = new ObservableCollection<DataItem>(data);
+					_points.Clear();
+					foreach (var item in Model)
+					{
+						_points.Add(new Coordinates(item.X, item.Y));
 					}
-				];
+				}
+					
+				//PlotVisibility = Visibility.Visible;
+				//Series = [
+				//	new LineSeries<ObservablePoint>{
+				//	Values = _points,Fill = null
+				//	}
+				//];
 			}
 
 		}
 
 
 		// Также не забыть про копию графика в буфер обмена
-		public ViewModel()
+		public ViewModel(ref WinUIPlot plot)
 		{
-			XAxis = new Axis[]
-			{
-				new Axis
-				{
-					SeparatorsPaint = new SolidColorPaint(ClassParameters.s_gray),
-					SubticksPaint = new SolidColorPaint
-					{
-						Color = ClassParameters.s_gray,
-						StrokeThickness = 1
-					}
+			this.plot = plot;
+		}
 
-				}
-			};
-			YAxis = new Axis[]
-			{
-				new Axis
-				{
-					SeparatorsPaint = new SolidColorPaint(ClassParameters.s_gray),
-					SubticksPaint = new SolidColorPaint
-					{
-						Color = ClassParameters.s_gray,
-						StrokeThickness = 1
-					}
-				}
-			};
+		private void UpdatePlot()
+		{
+			plot.Plot.Clear();
+			plot.Plot.Add.Scatter(_points.ToArray());
+			plot.Refresh();
+		}
+
+		private void InitSpline()
+		{
+			var xs = Model.Select(p => (double)p.X);
+			var ys = Model.Select(p => (double)p.Y);
+			spline = (CubicSpline)Interpolate.CubicSpline(xs, ys);
 		}
 	}
 }

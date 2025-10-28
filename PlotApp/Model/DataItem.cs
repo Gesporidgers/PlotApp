@@ -1,6 +1,6 @@
 ﻿using CsvHelper.Configuration.Attributes;
-using LiveChartsCore.Defaults;
 using PlotApp.Util;
+using ScottPlot;
 
 namespace PlotApp.Model
 {
@@ -24,7 +24,7 @@ namespace PlotApp.Model
 			X = 0;
 			Y = 0;
 		}
-		public static implicit operator ObservablePoint(DataItem dataItem) => new ObservablePoint(dataItem.X, dataItem.Y);
+		public static implicit operator Coordinates(DataItem dataItem) => new Coordinates(dataItem.X, dataItem.Y);
 
 	}
 }

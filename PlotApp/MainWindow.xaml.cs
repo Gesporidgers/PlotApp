@@ -4,9 +4,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
-using LiveChartsCore;
-using LiveChartsCore.Kernel.Sketches;
-using LiveChartsCore.SkiaSharpView;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -16,6 +13,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.Windows.Storage.Pickers;
 using PlotApp.Dialogs;
+using PlotApp.Model;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 
@@ -29,11 +27,12 @@ namespace PlotApp
     /// </summary>
     public sealed partial class MainWindow : Window
     {
-        private ViewModel _viewModel = new ViewModel();
+		private ViewModel _viewModel;
 		int status = 0;
 		public MainWindow()
         {
             InitializeComponent();
+			_viewModel = new ViewModel(ref mainplot);
 		}
 
 		private void dataGrid_KeyDown(object sender, KeyRoutedEventArgs e)
@@ -85,7 +84,7 @@ namespace PlotApp
 		{
 			if (sender is ContentDialog dialog)
 			{
-				var content = dialog.Content as EnterName;
+				/*var content = dialog.Content as EnterName;
 				switch (dialog.Name)
 				{
 					case "X":
@@ -109,7 +108,7 @@ namespace PlotApp
 							
 							break;
 						}
-				}
+				}*/
 			}
 		}
 
@@ -125,6 +124,12 @@ namespace PlotApp
 			contentDialog.PrimaryButtonClick += EnterAxisName;
 			contentDialog.SecondaryButtonText = "Отмена";
 			await contentDialog.ShowAsync();
+		}
+
+		private void PlusBtn_Click(object sender, RoutedEventArgs e)
+		{
+			_viewModel.AddRow();
+			//mainplot.Plot.Add.Scatter(new DataItem());
 		}
 	}
 
