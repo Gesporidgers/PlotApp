@@ -8,6 +8,7 @@ using Microsoft.Windows.Storage.Pickers;
 using PlotApp.Model;
 using PlotApp.Util;
 using ScottPlot;
+using ScottPlot.Plottables;
 using ScottPlot.WinUI;
 using System;
 using System.Collections.Generic;
@@ -24,7 +25,7 @@ namespace PlotApp
 		private CubicSpline spline;
 		private WinUIPlot plot;
 		private bool _isSmooth = false;
-
+		private string _selected;
 		private int _selInd;
 
 		public ObservableCollection<DataItem> Model
@@ -70,6 +71,16 @@ namespace PlotApp
 				OnPropertyChanged(nameof(SelInd));
 			}
 		}
+		public int PlotIndex = 0;
+		public string Selected
+		{
+			get => _selected;
+			set
+			{
+				_selected = value;
+				OnPropertyChanged(nameof(Selected));
+			}
+		}
 
 		public void AddRow()
 		{
@@ -103,7 +114,7 @@ namespace PlotApp
 			_points.RemoveAt(index);
 		}
 
-		//потом туда сделать интерполяцию
+		
 		public void SetSmooth()
 		{
 			_points.Clear();
@@ -125,20 +136,16 @@ namespace PlotApp
 			}
 			isSmooth = false;
 		}
-		public void ToggleLegend()
-		{
-		}/* LegVisible = LegVisible == LegendPosition.Hidden ? LegendPosition.Bottom : LegendPosition.Hidden;*/
+
 		public void ChangeColor(object sender, ColorChangedEventArgs e)
 		{
-			//(Series[0] as LineSeries<ObservablePoint>).Stroke = new SolidColorPaint(SkiaSharp.SKColor.Parse(e.NewColor.ToString()), 4);
-			//(Series[0] as LineSeries<ObservablePoint>).GeometryStroke = new SolidColorPaint(SkiaSharp.SKColor.Parse(e.NewColor.ToString()), 4);
+			(plot.Plot.PlottableList[0] as Scatter).Color = ScottPlot.Color.FromSKColor(SkiaSharp.SKColor.Parse(e.NewColor.ToString()));
+			plot.Refresh();
 		}
 		public void DashLine()
 		{
-			//Paint strk = (Series[0] as LineSeries<ObservablePoint>).Stroke;
-			//SolidColorPaint newStyle = strk as SolidColorPaint;
-			//newStyle.PathEffect = ClassParameters.dashEffect;
-			//(Series[0] as LineSeries<ObservablePoint>).Stroke = newStyle;
+			(plot.Plot.PlottableList[0] as Scatter).LinePattern = LinePattern.Dashed;
+			plot.Refresh();
 		}
 		public void UndashLine()
 		{
@@ -173,14 +180,8 @@ namespace PlotApp
 					{
 						_points.Add(new Coordinates(item.X, item.Y));
 					}
+					UpdatePlot();
 				}
-					
-				//PlotVisibility = Visibility.Visible;
-				//Series = [
-				//	new LineSeries<ObservablePoint>{
-				//	Values = _points,Fill = null
-				//	}
-				//];
 			}
 
 		}
@@ -195,7 +196,7 @@ namespace PlotApp
 		private void UpdatePlot()
 		{
 			plot.Plot.Clear();
-			plot.Plot.Add.Scatter(_points.ToArray());
+			plot.Plot.Add.Scatter(_points.ToArray()).MarkerSize = 0;
 			plot.Refresh();
 		}
 

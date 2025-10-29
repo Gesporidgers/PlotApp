@@ -1,9 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -14,7 +8,16 @@ using Microsoft.UI.Xaml.Navigation;
 using Microsoft.Windows.Storage.Pickers;
 using PlotApp.Dialogs;
 using PlotApp.Model;
+using PlotApp.Util;
+using ScottPlot;
 using ScottPlot.AxisPanels;
+using ScottPlot.Plottables;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 
@@ -23,25 +26,47 @@ using Windows.Foundation.Collections;
 
 namespace PlotApp
 {
-    /// <summary>
-    /// An empty window that can be used on its own or navigated to within a Frame.
-    /// </summary>
-    public sealed partial class MainWindow : Window
-    {
+	/// <summary>
+	/// An empty window that can be used on its own or navigated to within a Frame.
+	/// </summary>
+	public sealed partial class MainWindow : Window
+	{
 		private ViewModel _viewModel;
 		int status = 0;
 		public MainWindow()
-        {
-            InitializeComponent();
+		{
+			InitializeComponent();
 			_viewModel = new ViewModel(ref mainplot);
+			mainplot.Plot.Legend.FontName = ClassParameters.FontName;
+			mainplot.Plot.Legend.Alignment = Alignment.LowerCenter;
+			mainplot.Plot.Legend.FontSize = ClassParameters.LegendFontSize;
+			IEnumerable<IPlottable> scatters;
+			mainplot.PointerMoved += (s, e) => 
+			{
+				scatters = mainplot.Plot.PlottableList.Where((i) => i.GetType() == typeof(Scatter));
+				if (scatters.Count() > 0)
+				{
+					var point = e.GetCurrentPoint(mainplot).Position;
+					Coordinates position = mainplot.Plot.GetCoordinates((float)point.X, (float)point.Y);
+					DataPoint nearest = (mainplot.Plot.PlottableList[0] as Scatter).GetNearest(position, mainplot.Plot.LastRender);
+					if (nearest.IsReal)
+					{
+						_viewModel.Selected = $"X={nearest.X:0.##}, Y={nearest.Y:0.##}";
+						
+						mainplot.Refresh();
+					}
+						
+				}
+
+			};
 		}
 
 		private void dataGrid_KeyDown(object sender, KeyRoutedEventArgs e)
 		{
-            if (e.Key == Windows.System.VirtualKey.Delete)
-            {
-                _viewModel.DeleteRow(dataGrid.SelectedIndex);
-            }
+			if (e.Key == Windows.System.VirtualKey.Delete)
+			{
+				_viewModel.DeleteRow(dataGrid.SelectedIndex);
+			}
 		}
 
 		private async void Button_Click(object sender, RoutedEventArgs e)
@@ -93,7 +118,7 @@ namespace PlotApp
 							BottomAxis axis = new BottomAxis
 							{
 								LabelText = content.EnteredText,
-								LabelFontName = "Times New Roman"
+								LabelFontName = ClassParameters.FontName,
 							};
 							mainplot.Plot.Axes.Remove(mainplot.Plot.Axes.Bottom);
 							mainplot.Plot.Axes.AddBottomAxis(axis);
@@ -104,7 +129,7 @@ namespace PlotApp
 							LeftAxis axis = new LeftAxis
 							{
 								LabelText = content.EnteredText,
-								LabelFontName = "Times New Roman"
+								LabelFontName = ClassParameters.FontName,
 							};
 							mainplot.Plot.Axes.Remove(mainplot.Plot.Axes.Left);
 							mainplot.Plot.Axes.AddLeftAxis(axis);
@@ -112,7 +137,9 @@ namespace PlotApp
 						}
 					case "Series":
 						{
-
+							var a = mainplot.Plot.PlottableList[0] as Scatter;
+							a.LegendText = content.EnteredText;
+							mainplot.Plot.PlottableList[0] = a;
 							break;
 						}
 				}
@@ -135,5 +162,5 @@ namespace PlotApp
 		}
 	}
 
-    
+
 }
