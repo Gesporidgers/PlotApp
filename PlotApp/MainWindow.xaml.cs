@@ -48,10 +48,10 @@ namespace PlotApp
 				{
 					var point = e.GetCurrentPoint(mainplot).Position;
 					Coordinates position = mainplot.Plot.GetCoordinates((float)point.X, (float)point.Y);
-					DataPoint nearest = (mainplot.Plot.PlottableList[0] as Scatter).GetNearest(position, mainplot.Plot.LastRender);
+					DataPoint nearest = (mainplot.Plot.PlottableList[_viewModel.PlotIndex] as Scatter).GetNearest(position, mainplot.Plot.LastRender);
 					if (nearest.IsReal)
 					{
-						_viewModel.Selected = $"X={nearest.X:0.##}, Y={nearest.Y:0.##}";
+						_viewModel.SelectedPoint = $"X={nearest.X:0.##}, Y={nearest.Y:0.##}";
 						
 						mainplot.Refresh();
 					}
@@ -137,9 +137,9 @@ namespace PlotApp
 						}
 					case "Series":
 						{
-							var a = mainplot.Plot.PlottableList[0] as Scatter;
+							var a = mainplot.Plot.PlottableList[_viewModel.PlotIndex] as Scatter;
 							a.LegendText = content.EnteredText;
-							mainplot.Plot.PlottableList[0] = a;
+							mainplot.Plot.PlottableList[_viewModel.PlotIndex] = a;
 							break;
 						}
 				}

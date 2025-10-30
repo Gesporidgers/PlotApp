@@ -48,15 +48,15 @@
                 <Button Click="Button_Click">
                     <SymbolIcon Symbol="Folder"/>
                 </Button>
-                <Button Margin="15 0 0 0">
+                <Button Margin="15 0 0 0" Click="{x:Bind _viewModel.PrevPlot}">
                     <SymbolIcon Symbol="Previous"/>
                 </Button>
-                <TextBlock Text="1/1" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                <Button>
+                <TextBlock HorizontalAlignment="Center" Text="{x:Bind _viewModel.Selected, Mode=OneWay}" VerticalAlignment="Center"/>
+                <Button Click="{x:Bind _viewModel.NextPlot}">
                     <SymbolIcon Symbol="Next"/>
                 </Button>
             </StackPanel>
-            <TextBlock Grid.Row="1" HorizontalAlignment="Center" Text="{x:Bind _viewModel.Selected, Mode=OneWay}" />
+            <TextBlock Grid.Row="1" HorizontalAlignment="Center" Text="{x:Bind _viewModel.SelectedPoint, Mode=OneWay}" />
         </Grid>
         <sc:WinUIPlot Grid.Column="1" Grid.Row="1" x:Name="mainplot"/>
         <TextBlock Text="Заполните данные" Grid.Column="1" Grid.Row="1" VerticalAlignment="Center" FontSize="20" FontWeight="Light" HorizontalAlignment="Center" Visibility="{x:Bind _viewModel.WarningVisibility, Mode=OneWay}"/>

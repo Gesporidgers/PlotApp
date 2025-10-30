@@ -33,6 +33,7 @@ namespace PlotApp
 		private WinUIPlot plot;
 		private bool _isSmooth = false;
 		private string _selected;
+		private string _selectedPoint;
 		private int _selInd;
 		private List<Grafik> plots = new List<Grafik>();
 		public ObservableCollection<DataItem> Model
@@ -89,6 +90,15 @@ namespace PlotApp
 				OnPropertyChanged(nameof(Selected));
 			}
 		}
+		public string SelectedPoint
+		{
+			get => _selectedPoint;
+			set
+			{
+				_selectedPoint = value;
+				OnPropertyChanged(nameof(SelectedPoint));
+			}
+		}
 
 		public void AddRow()
 		{
@@ -118,6 +128,7 @@ namespace PlotApp
 				if (Model.Count > 2)
 					InitSpline();
 			};
+			Selected = $"{PlotIndex + 1}/{plots.Count}";
 		}
 
 		public void DeleteRow(int index)
@@ -187,6 +198,7 @@ namespace PlotApp
 				}
 				else
 				{
+					Model = new ObservableCollection<DataItem>(data);
 					plots[PlotIndex].Model = new ObservableCollection<DataItem>(data);
 					plots[PlotIndex].Coordinates.Clear();
 					foreach (var item in plots[PlotIndex].Model)
@@ -196,15 +208,42 @@ namespace PlotApp
 					UpdatePlot();
 				}
 			}
-
+			Selected = $"{PlotIndex + 1}/{plots.Count}";
 		}
 
+
+		public void NextPlot()
+		{
+			PlotIndex++;
+			Selected = $"{PlotIndex + 1}/{plots.Count}";
+			if (plots.Count - 1 < PlotIndex)
+				plots.Add(new Grafik());
+			if (plots[PlotIndex].Model != null)
+			{
+				Model = plots[PlotIndex].Model;
+			}
+			else
+			{
+				Model = new ObservableCollection<DataItem>();
+			}
+			
+		}
+		public void PrevPlot()
+		{
+			if (PlotIndex > 0)
+			{
+				PlotIndex--;
+				Selected = $"{PlotIndex + 1}/{plots.Count}";
+				Model = plots[PlotIndex].Model;
+			}
+		}
 
 		// Также не забыть про копию графика в буфер обмена
 		public ViewModel(ref WinUIPlot plot)
 		{
 			this.plot = plot;
 			plots.Add(new Grafik());
+			Selected = $"{PlotIndex + 1}/{plots.Count}";
 		}
 
 		/// <summary>
