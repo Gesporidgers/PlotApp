@@ -115,24 +115,15 @@ namespace PlotApp
 				{
 					case "X":
 						{
-							BottomAxis axis = new BottomAxis
-							{
-								LabelText = content.EnteredText,
-								LabelFontName = ClassParameters.FontName,
-							};
-							mainplot.Plot.Axes.Remove(mainplot.Plot.Axes.Bottom);
-							mainplot.Plot.Axes.AddBottomAxis(axis);
+
+							(mainplot.Plot.Axes.Bottom as BottomAxis).LabelText = content.EnteredText;
+							(mainplot.Plot.Axes.Bottom as BottomAxis).LabelFontName = ClassParameters.FontName;
 							break;
 						}
 					case "Y":
 						{
-							LeftAxis axis = new LeftAxis
-							{
-								LabelText = content.EnteredText,
-								LabelFontName = ClassParameters.FontName,
-							};
-							mainplot.Plot.Axes.Remove(mainplot.Plot.Axes.Left);
-							mainplot.Plot.Axes.AddLeftAxis(axis);
+							(mainplot.Plot.Axes.Left as LeftAxis).LabelText = content.EnteredText;
+							(mainplot.Plot.Axes.Left as LeftAxis).LabelFontName = ClassParameters.FontName;
 							break;
 						}
 					case "Series":
