@@ -32,7 +32,7 @@ namespace PlotApp
 	public sealed partial class MainWindow : Window
 	{
 		private ViewModel _viewModel;
-		int status = 0;
+		bool shownLegend = false;
 		public MainWindow()
 		{
 			InitializeComponent();
@@ -131,6 +131,11 @@ namespace PlotApp
 							var a = mainplot.Plot.PlottableList[_viewModel.PlotIndex] as Scatter;
 							a.LegendText = content.EnteredText;
 							mainplot.Plot.PlottableList[_viewModel.PlotIndex] = a;
+							if (!shownLegend)
+							{
+								mainplot.Plot.ShowLegend(Edge.Bottom);
+								shownLegend = true;
+							}
 							break;
 						}
 				}
