@@ -32,6 +32,7 @@
                 <MenuFlyoutItem Text="Название оси Y" x:Name="EnterY" Click="EnterY_Click"/>
             </MenuBarItem>
             <MenuBarItem Title="Легенда" >
+                
                 <MenuFlyoutItem Text="Изменить название графика" Click="EnterName_Click" x:Name="EnterName"/>
             </MenuBarItem>
         </MenuBar>
@@ -58,11 +59,11 @@
             </StackPanel>
             <TextBlock Grid.Row="1" HorizontalAlignment="Center" Text="{x:Bind _viewModel.SelectedPoint, Mode=OneWay}" />
         </Grid>
-        <sc:WinUIPlot Grid.Column="1" Grid.Row="1" x:Name="mainplot"/>
+        <sc:WinUIPlot Grid.Column="1" Grid.Row="1" x:Name="mainplot" />
         <TextBlock Text="Заполните данные" Grid.Column="1" Grid.Row="1" VerticalAlignment="Center" FontSize="20" FontWeight="Light" HorizontalAlignment="Center" Visibility="{x:Bind _viewModel.WarningVisibility, Mode=OneWay}"/>
         <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal" Spacing="7">
-            <CheckBox Content="Интерполяция графика" IsChecked="{x:Bind _viewModel.isSmooth, Mode=TwoWay}" Checked="{x:Bind _viewModel.SetSmooth}" Unchecked="{x:Bind _viewModel.UnsetSmooth}"/>
-            <Button Content="Цвет графика">
+            <CheckBox IsEnabled="{x:Bind _viewModel.IsEnabledOptions, Mode=OneWay}" Content="Интерполяция графика" IsChecked="{x:Bind _viewModel.isSmooth, Mode=TwoWay}" Checked="{x:Bind _viewModel.SetSmooth}" Unchecked="{x:Bind _viewModel.UnsetSmooth}"/>
+            <Button IsEnabled="{x:Bind _viewModel.IsEnabledOptions, Mode=OneWay}" Content="Цвет графика">
                 <Button.Flyout>
                     <Flyout>
                         <ColorPicker
@@ -74,8 +75,8 @@
                 </Button.Flyout>
             </Button>
             <TextBlock Text="Стиль линии:" VerticalAlignment="Center" Margin="20 0 0 0"/>
-            <RadioButton Content="Сплошная" Checked="{x:Bind _viewModel.UndashLine}"/>
-            <RadioButton Content="Пунктирная" Checked="{x:Bind _viewModel.DashLine}"/>
+            <RadioButton IsEnabled="{x:Bind _viewModel.IsEnabledOptions, Mode=OneWay}" Content="Сплошная" Checked="{x:Bind _viewModel.UndashLine}"/>
+            <RadioButton IsEnabled="{x:Bind _viewModel.IsEnabledOptions, Mode=OneWay}" Content="Пунктирная" Checked="{x:Bind _viewModel.DashLine}"/>
         </StackPanel>
     </Grid>
 </Window>

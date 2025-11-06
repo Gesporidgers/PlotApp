@@ -32,7 +32,6 @@ namespace PlotApp
 	public sealed partial class MainWindow : Window
 	{
 		private ViewModel _viewModel;
-		bool shownLegend = false;
 		public MainWindow()
 		{
 			InitializeComponent();
@@ -41,7 +40,7 @@ namespace PlotApp
 			mainplot.Plot.Legend.Alignment = Alignment.LowerCenter;
 			mainplot.Plot.Legend.FontSize = ClassParameters.LegendFontSize;
 			IEnumerable<IPlottable> scatters;
-			mainplot.PointerMoved += (s, e) => 
+			mainplot.PointerMoved += (s, e) =>
 			{
 				scatters = mainplot.Plot.PlottableList.Where((i) => i.GetType() == typeof(Scatter));
 				if (scatters.Count() > 0)
@@ -52,13 +51,19 @@ namespace PlotApp
 					if (nearest.IsReal)
 					{
 						_viewModel.SelectedPoint = $"X={nearest.X:0.##}, Y={nearest.Y:0.##}";
-						
+
 						mainplot.Refresh();
 					}
-						
+
 				}
 
 			};
+			mainplot.Menu?.Clear();
+			mainplot.Menu?.Add("Вписать", (s) => { s.Axes.AutoScale(); });
+			mainplot.Menu?.Add("Скопировать", (s) =>
+			{
+				SvgClipboardHelper.SetSvg(s.GetSvgHtml(900, _viewModel.ToggleLegend ? 610 : 540));
+			});
 		}
 
 		private void dataGrid_KeyDown(object sender, KeyRoutedEventArgs e)
@@ -131,10 +136,10 @@ namespace PlotApp
 							var a = mainplot.Plot.PlottableList[_viewModel.PlotIndex] as Scatter;
 							a.LegendText = content.EnteredText;
 							mainplot.Plot.PlottableList[_viewModel.PlotIndex] = a;
-							if (!shownLegend)
+							if (!_viewModel.ToggleLegend)
 							{
 								mainplot.Plot.ShowLegend(Edge.Bottom);
-								shownLegend = true;
+								_viewModel.ToggleLegend = true;
 							}
 							break;
 						}

@@ -32,6 +32,8 @@ namespace PlotApp
 		private CubicSpline spline;
 		private WinUIPlot plot;
 		private bool _isSmooth = false;
+		private bool _toggleLegend = false;
+		private bool _isEnabledOptions = false;
 		private string _selected;
 		private string _selectedPoint;
 		private int _selInd;
@@ -68,7 +70,27 @@ namespace PlotApp
 			set
 			{
 				_isSmooth = value;
+				plots[PlotIndex].isSmooth = value;
 				OnPropertyChanged(nameof(isSmooth));
+			}
+		}
+		public bool ToggleLegend
+		{
+			get => _toggleLegend;
+			set
+			{
+				_toggleLegend = value;
+				OnPropertyChanged(nameof(ToggleLegend));
+
+			}
+		}
+		public bool IsEnabledOptions
+		{
+			get => _isEnabledOptions;
+			set
+			{
+				_isEnabledOptions = value;
+				OnPropertyChanged(nameof(IsEnabledOptions));
 			}
 		}
 		public int SelInd
@@ -119,13 +141,14 @@ namespace PlotApp
 			Model.Add(new DataItem());
 			plots[PlotIndex].Coordinates.Add(new DataItem());
 			plots[PlotIndex].Model.Add(new DataItem());
+			IsEnabledOptions = true;
 			Model[Model.Count - 1].PropertyChanged += (s, e) =>
 			{
 				if (isSmooth)
 					UnsetSmooth();
 				plots[PlotIndex].Model[SelInd] = Model[SelInd];
 				plots[PlotIndex].Coordinates[SelInd] = plots[PlotIndex].Model[SelInd];
-				if (Model.Count > 2)
+				if (Model.Count > 3)
 					InitSpline();
 			};
 			Selected = $"{PlotIndex + 1}/{plots.Count}";
@@ -136,9 +159,11 @@ namespace PlotApp
 			plots[PlotIndex].Model.RemoveAt(index);
 			Model.RemoveAt(index);
 			plots[PlotIndex].Coordinates.RemoveAt(index);
+			if (Model.Count == 0)
+				IsEnabledOptions = false;
 		}
 
-
+		// Надо бы прикрутить флаг для того чтобы не использовать эти функции когда количество точек меньше 4 (?)
 		public void SetSmooth()
 		{
 			plots[PlotIndex].Coordinates.Clear();
@@ -165,7 +190,7 @@ namespace PlotApp
 		{
 			plots[PlotIndex].PlotColor = ScottPlot.Color.FromSKColor(SkiaSharp.SKColor.Parse(e.NewColor.ToString()));
 			UpdatePlot(UPDATE_MODE.Color);
-			
+
 		}
 		public void DashLine()
 		{
@@ -174,7 +199,7 @@ namespace PlotApp
 		}
 		public void UndashLine()
 		{
-			plots[PlotIndex].Pattern = LinePattern.Solid ;
+			plots[PlotIndex].Pattern = LinePattern.Solid;
 			UpdatePlot(UPDATE_MODE.Pattern);
 		}
 
@@ -207,6 +232,7 @@ namespace PlotApp
 					}
 					UpdatePlot();
 				}
+				IsEnabledOptions = true;
 			}
 			Selected = $"{PlotIndex + 1}/{plots.Count}";
 		}
@@ -217,16 +243,20 @@ namespace PlotApp
 			PlotIndex++;
 			Selected = $"{PlotIndex + 1}/{plots.Count}";
 			if (plots.Count - 1 < PlotIndex)
+			{
 				plots.Add(new Grafik());
+				IsEnabledOptions = false;
+			}
 			if (plots[PlotIndex].Model != null)
 			{
 				Model = plots[PlotIndex].Model;
+				IsEnabledOptions = true;
 			}
 			else
 			{
 				Model = new ObservableCollection<DataItem>();
 			}
-			
+
 		}
 		public void PrevPlot()
 		{
@@ -235,6 +265,8 @@ namespace PlotApp
 				PlotIndex--;
 				Selected = $"{PlotIndex + 1}/{plots.Count}";
 				Model = plots[PlotIndex].Model;
+				isSmooth = plots[PlotIndex].isSmooth;
+				IsEnabledOptions = plots[PlotIndex].Model.Count > 0;
 			}
 		}
 
@@ -267,6 +299,10 @@ namespace PlotApp
 			plot.Refresh();
 		}
 
+		/// <summary>
+		/// Перерисовка графика при изменении определённого параметра в графике
+		/// </summary>
+		/// <param name="mode">Режим изменения. Цвет или стиль</param>
 		private void UpdatePlot(UPDATE_MODE mode)
 		{
 			switch (mode)

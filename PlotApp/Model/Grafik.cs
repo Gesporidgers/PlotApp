@@ -15,6 +15,7 @@ namespace PlotApp.Model
 		public ObservableCollection<DataItem> Model { get; set; }
 		public Color PlotColor { get; set; }
 		public LinePattern Pattern { get; set; }
+		public bool isSmooth { get; set; }
 		public CubicSpline spline { get; set; }
 	}
 }
