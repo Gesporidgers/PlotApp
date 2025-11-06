@@ -206,35 +206,62 @@ namespace PlotApp
 		// Будем делать импорт из CSV. Также можно и json (но вряд-ли нужно
 		public void Import(string path)
 		{
-			List<DataItem> data = CSVImporter.Import(path);
-			if (data != null)
+			try
 			{
-				if (plots[PlotIndex].Model == null)
+				List<DataItem> data = CSVImporter.Import(path);
+				if (data != null || data.Count == 0)
 				{
-					plots[PlotIndex].Model = new ObservableCollection<DataItem>(data);
-					Model = new ObservableCollection<DataItem>(data);
-					plots[PlotIndex].Coordinates = new ObservableCollection<Coordinates>(plots[PlotIndex].Model.Select(p => new Coordinates(p.X, p.Y)));
-					plots[PlotIndex].Coordinates.CollectionChanged += (s, e) =>
+					if (plots[PlotIndex].Model == null)
 					{
+						plots[PlotIndex].Model = new ObservableCollection<DataItem>(data);
+						Model = new ObservableCollection<DataItem>(data);
+						plots[PlotIndex].Coordinates = new ObservableCollection<Coordinates>(plots[PlotIndex].Model.Select(p => new Coordinates(p.X, p.Y)));
+						plots[PlotIndex].Coordinates.CollectionChanged += (s, e) =>
+						{
+							UpdatePlot();
+						};
+						InitSpline();
 						UpdatePlot();
-					};
-					InitSpline();
-					UpdatePlot();
+					}
+					else
+					{
+						Model = new ObservableCollection<DataItem>(data);
+						plots[PlotIndex].Model = new ObservableCollection<DataItem>(data);
+						plots[PlotIndex].Coordinates.Clear();
+						foreach (var item in plots[PlotIndex].Model)
+						{
+							plots[PlotIndex].Coordinates.Add(new Coordinates(item.X, item.Y));
+						}
+						UpdatePlot();
+					}
+					IsEnabledOptions = true;
+					Selected = $"{PlotIndex + 1}/{plots.Count}";
 				}
 				else
 				{
-					Model = new ObservableCollection<DataItem>(data);
-					plots[PlotIndex].Model = new ObservableCollection<DataItem>(data);
-					plots[PlotIndex].Coordinates.Clear();
-					foreach (var item in plots[PlotIndex].Model)
+					ContentDialog contentDialog = new ContentDialog()
 					{
-						plots[PlotIndex].Coordinates.Add(new Coordinates(item.X, item.Y));
-					}
-					UpdatePlot();
+						Title = "Ошибка импорта",
+						Content = "Файл пуст",
+						CloseButtonText = "ОК",
+						XamlRoot = plot.XamlRoot
+					};
+					contentDialog.ShowAsync();
 				}
-				IsEnabledOptions = true;
 			}
-			Selected = $"{PlotIndex + 1}/{plots.Count}";
+			catch (Exception)
+			{
+				ContentDialog contentDialog = new ContentDialog()
+				{
+					Title = "Ошибка импорта",
+					Content = "Не удалось импортировать данные из файла. Проверьте правильность формата данных в файле.",
+					CloseButtonText = "ОК",
+					XamlRoot = plot.XamlRoot,
+					
+				};
+				contentDialog.ShowAsync();
+			}
+
 		}
 
 

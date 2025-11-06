@@ -81,7 +81,8 @@ namespace PlotApp
 			picker.FileTypeFilter.Add(".csv");
 
 			var file = await picker.PickSingleFileAsync();
-			_viewModel.Import(file.Path);
+			if (file.Path != null)
+				_viewModel.Import(file.Path);
 		}
 
 		private async void EnterX_Click(object sender, RoutedEventArgs e)
@@ -94,6 +95,8 @@ namespace PlotApp
 			contentDialog.PrimaryButtonText = "OK";
 			contentDialog.PrimaryButtonStyle = Application.Current.Resources["AccentButtonStyle"] as Style;
 			contentDialog.PrimaryButtonClick += EnterAxisName;
+			contentDialog.DefaultButton = ContentDialogButton.Primary;
+
 			contentDialog.SecondaryButtonText = "Отмена";
 			await contentDialog.ShowAsync();
 		}
@@ -107,6 +110,8 @@ namespace PlotApp
 			contentDialog.PrimaryButtonText = "OK";
 			contentDialog.PrimaryButtonStyle = Application.Current.Resources["AccentButtonStyle"] as Style;
 			contentDialog.PrimaryButtonClick += EnterAxisName;
+			contentDialog.DefaultButton = ContentDialogButton.Primary;
+
 			contentDialog.SecondaryButtonText = "Отмена";
 			await contentDialog.ShowAsync();
 		}
@@ -159,6 +164,8 @@ namespace PlotApp
 			contentDialog.PrimaryButtonStyle = Application.Current.Resources["AccentButtonStyle"] as Style;
 			contentDialog.PrimaryButtonClick += EnterAxisName;
 			contentDialog.SecondaryButtonText = "Отмена";
+			contentDialog.DefaultButton = ContentDialogButton.Primary;
+
 			await contentDialog.ShowAsync();
 		}
 	}
