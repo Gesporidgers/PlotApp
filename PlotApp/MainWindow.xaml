@@ -31,7 +31,7 @@
                 <MenuFlyoutItem Text="Название оси X" x:Name="EnterX" Click="EnterX_Click"/>
                 <MenuFlyoutItem Text="Название оси Y" x:Name="EnterY" Click="EnterY_Click"/>
             </MenuBarItem>
-            <MenuBarItem Title="Легенда" >
+            <MenuBarItem Title="Легенда" IsEnabled="{x:Bind _viewModel.IsEnabledOptions, Mode=OneWay}">
                 
                 <MenuFlyoutItem Text="Изменить название графика" Click="EnterName_Click" x:Name="EnterName"/>
             </MenuBarItem>
@@ -48,6 +48,9 @@
                 </Button>
                 <Button Click="Button_Click">
                     <SymbolIcon Symbol="Folder"/>
+                </Button>
+                <Button>
+                    <SymbolIcon Symbol="Delete"/>
                 </Button>
                 <Button Margin="15 0 0 0" Click="{x:Bind _viewModel.PrevPlot}">
                     <SymbolIcon Symbol="Previous"/>
