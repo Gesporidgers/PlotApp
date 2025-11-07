@@ -30,9 +30,7 @@ namespace PlotApp
 		/// </summary>
 		private int indexInPlotList;
 		private ObservableCollection<DataItem> _model;
-		private ObservableCollection<Coordinates> _points;
 		private Visibility _plotVisibility = Visibility.Collapsed;
-		private CubicSpline spline;
 		private WinUIPlot plot;
 		private bool _isSmooth = false;
 		private bool _toggleLegend = false;
@@ -118,6 +116,9 @@ namespace PlotApp
 				return indexInPlotList;
 			}
 		}
+		/// <summary>
+		/// Для текста во View, чтобы понимать какой график редактируется
+		/// </summary>
 		public string Selected
 		{
 			get => _selected;
@@ -127,6 +128,9 @@ namespace PlotApp
 				OnPropertyChanged(nameof(Selected));
 			}
 		}
+		/// <summary>
+		/// Для текста во View, чтобы видеть какая точка под курсором
+		/// </summary>
 		public string SelectedPoint
 		{
 			get => _selectedPoint;
