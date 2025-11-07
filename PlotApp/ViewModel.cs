@@ -332,6 +332,15 @@ namespace PlotApp
 				IsEnabledOptions = plots[PlotIndex].Model.Count > 0;
 			}
 		}
+		// Сделать проверку на удаление единственного графика
+		// Сделать если удаление происходит первого графика из двух потому что индекс также будет -1
+		public void DeletePlot()
+		{
+			plots.RemoveAt(PlotIndex);
+			PrevPlot();
+			plot.Plot.PlottableList.RemoveAt(indexInPlotList);
+			plot.Refresh();
+		}
 
 		// Также не забыть про копию графика в буфер обмена
 		public ViewModel(ref WinUIPlot plot)

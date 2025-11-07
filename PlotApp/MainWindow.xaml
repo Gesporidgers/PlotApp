@@ -49,7 +49,7 @@
                 <Button Click="Button_Click">
                     <SymbolIcon Symbol="Folder"/>
                 </Button>
-                <Button>
+                <Button Click="{x:Bind _viewModel.DeletePlot}">
                     <SymbolIcon Symbol="Delete"/>
                 </Button>
                 <Button Margin="15 0 0 0" Click="{x:Bind _viewModel.PrevPlot}">
