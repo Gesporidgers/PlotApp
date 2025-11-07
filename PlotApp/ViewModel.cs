@@ -215,17 +215,16 @@ namespace PlotApp
 		public void DashLine()
 		{
 			FindIndexOfPlot();
-			plots[PlotIndex].Pattern = LinePattern.DenselyDashed;
+			plots[PlotIndex].Pattern = LinePattern.Dashed;
 			UpdatePlot(UPDATE_MODE.Pattern);
 		}
-
 		public void DotLine()
 		{
 			FindIndexOfPlot();
 			plots[PlotIndex].Pattern = LinePattern.Dotted;
 			UpdatePlot(UPDATE_MODE.Pattern);
 		}
-		public void UndashLine()
+		public void SolidLine()
 		{
 			FindIndexOfPlot();
 			plots[PlotIndex].Pattern = LinePattern.Solid;
@@ -254,6 +253,7 @@ namespace PlotApp
 					}
 					else
 					{
+						FindIndexOfPlot();
 						Model = new ObservableCollection<DataItem>(data);
 						plots[PlotIndex].Model = new ObservableCollection<DataItem>(data);
 						plots[PlotIndex].Coordinates.Clear();
