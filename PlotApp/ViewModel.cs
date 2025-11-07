@@ -301,6 +301,7 @@ namespace PlotApp
 			if (plots.Count - 1 < PlotIndex)
 			{
 				plots.Add(new Grafik());
+				indexInPlotList++;
 				IsEnabledOptions = false;
 				isSmooth = false;
 			}
@@ -334,6 +335,7 @@ namespace PlotApp
 			this.plot = plot;
 			plots.Add(new Grafik());
 			Selected = $"{PlotIndex + 1}/{plots.Count}";
+			indexInPlotList = 1;
 		}
 
 		/// <summary>

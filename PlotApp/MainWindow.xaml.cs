@@ -43,7 +43,7 @@ namespace PlotApp
 			mainplot.Plot.Legend.Alignment = Alignment.LowerCenter;
 			mainplot.Plot.Legend.FontSize = ClassParameters.LegendFontSize;
 			Crosshair center = mainplot.Plot.Add.Crosshair(0, 0);
-			center.LineColor = ScottPlot.Color.FromSKColor(ClassParameters.s_gray1);
+			center.LineColor = ScottPlot.Color.FromSKColor(ClassParameters.s_gray2);
 			List<IPlottable> scatters;
 			mainplot.PointerMoved += (s, e) =>
 			{
