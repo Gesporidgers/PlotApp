@@ -26,12 +26,13 @@ using Windows.Foundation.Collections;
 
 namespace PlotApp
 {
-	/// <summary>
-	/// An empty window that can be used on its own or navigated to within a Frame.
-	/// </summary>
 	public sealed partial class MainWindow : Window
 	{
 		private ViewModel _viewModel;
+		/// <summary>
+		/// Производим настройки окна с графиком и добавляем перекрестье в 0,0
+		/// Также добавляем событие для отображения ближайших к курсору координат
+		/// </summary>
 		public MainWindow()
 		{
 			InitializeComponent();
