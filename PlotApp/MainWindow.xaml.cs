@@ -37,17 +37,21 @@ namespace PlotApp
 			InitializeComponent();
 			_viewModel = new ViewModel(ref mainplot);
 			mainplot.Plot.Legend.FontName = ClassParameters.FontName;
+			mainplot.Plot.Axes.Left.TickLabelStyle.FontName = ClassParameters.FontName;
+			mainplot.Plot.Axes.Bottom.TickLabelStyle.FontName = ClassParameters.FontName;
 			mainplot.Plot.Legend.Alignment = Alignment.LowerCenter;
 			mainplot.Plot.Legend.FontSize = ClassParameters.LegendFontSize;
-			IEnumerable<IPlottable> scatters;
+			Crosshair center = mainplot.Plot.Add.Crosshair(0, 0);
+			center.LineColor = ScottPlot.Color.FromSKColor(ClassParameters.s_gray1);
+			List<IPlottable> scatters;
 			mainplot.PointerMoved += (s, e) =>
 			{
-				scatters = mainplot.Plot.PlottableList.Where((i) => i.GetType() == typeof(Scatter));
+				scatters = mainplot.Plot.PlottableList.Where((i) => i.GetType() == typeof(Scatter)).ToList();
 				if (scatters.Count() > 0)
 				{
 					var point = e.GetCurrentPoint(mainplot).Position;
 					Coordinates position = mainplot.Plot.GetCoordinates((float)point.X, (float)point.Y);
-					DataPoint nearest = (mainplot.Plot.PlottableList[_viewModel.PlotIndex] as Scatter).GetNearest(position, mainplot.Plot.LastRender);
+					DataPoint nearest = (scatters[_viewModel.PlotIndex] as Scatter).GetNearest(position, mainplot.Plot.LastRender);
 					if (nearest.IsReal)
 					{
 						_viewModel.SelectedPoint = $"X={nearest.X:0.##}, Y={nearest.Y:0.##}";
@@ -81,7 +85,7 @@ namespace PlotApp
 			picker.FileTypeFilter.Add(".csv");
 
 			var file = await picker.PickSingleFileAsync();
-			if (file.Path != null)
+			if (file != null)
 				_viewModel.Import(file.Path);
 		}
 
@@ -138,9 +142,9 @@ namespace PlotApp
 						}
 					case "Series":
 						{
-							var a = mainplot.Plot.PlottableList[_viewModel.PlotIndex] as Scatter;
+							var a = mainplot.Plot.PlottableList[_viewModel.IndexInPlotList] as Scatter;
 							a.LegendText = content.EnteredText;
-							mainplot.Plot.PlottableList[_viewModel.PlotIndex] = a;
+							mainplot.Plot.PlottableList[_viewModel.IndexInPlotList] = a;
 							if (!_viewModel.ToggleLegend)
 							{
 								mainplot.Plot.ShowLegend(Edge.Bottom);

@@ -25,7 +25,10 @@ namespace PlotApp
 			Color,
 			Pattern
 		}
-
+		/// <summary>
+		/// Индекс текущего графика в списке графиков на самом графике ScottPlot
+		/// </summary>
+		private int indexInPlotList;
 		private ObservableCollection<DataItem> _model;
 		private ObservableCollection<Coordinates> _points;
 		private Visibility _plotVisibility = Visibility.Collapsed;
@@ -102,7 +105,19 @@ namespace PlotApp
 				OnPropertyChanged(nameof(SelInd));
 			}
 		}
+
+		/// <summary>
+		/// Индекс текущего графика в списке plots
+		/// </summary>
 		public int PlotIndex = 0;
+		public int IndexInPlotList
+		{
+			get
+			{
+				FindIndexOfPlot();
+				return indexInPlotList;
+			}
+		}
 		public string Selected
 		{
 			get => _selected;
@@ -166,6 +181,9 @@ namespace PlotApp
 		// Надо бы прикрутить флаг для того чтобы не использовать эти функции когда количество точек меньше 4 (?)
 		public void SetSmooth()
 		{
+			// Найти индекс scatter по содержимому коллекции, а не по ссылке
+			if (isSmooth) return;
+			FindIndexOfPlot();
 			plots[PlotIndex].Coordinates.Clear();
 			for (double i = plots[PlotIndex].Model[0].X; i <= plots[PlotIndex].Model[Model.Count - 1].X; i += 0.125)
 			{
@@ -178,6 +196,7 @@ namespace PlotApp
 
 		public void UnsetSmooth()
 		{
+			if (!isSmooth) return;
 			plots[PlotIndex].Coordinates.Clear();
 			foreach (var item in plots[PlotIndex].Model)
 			{
@@ -188,17 +207,20 @@ namespace PlotApp
 
 		public void ChangeColor(object sender, ColorChangedEventArgs e)
 		{
+			FindIndexOfPlot();
 			plots[PlotIndex].PlotColor = ScottPlot.Color.FromSKColor(SkiaSharp.SKColor.Parse(e.NewColor.ToString()));
 			UpdatePlot(UPDATE_MODE.Color);
 
 		}
 		public void DashLine()
 		{
-			plots[PlotIndex].Pattern = LinePattern.Dashed;
+			FindIndexOfPlot();
+			plots[PlotIndex].Pattern = LinePattern.DenselyDashed;
 			UpdatePlot(UPDATE_MODE.Pattern);
 		}
 		public void UndashLine()
 		{
+			FindIndexOfPlot();
 			plots[PlotIndex].Pattern = LinePattern.Solid;
 			UpdatePlot(UPDATE_MODE.Pattern);
 		}
@@ -273,11 +295,13 @@ namespace PlotApp
 			{
 				plots.Add(new Grafik());
 				IsEnabledOptions = false;
+				isSmooth = false;
 			}
 			if (plots[PlotIndex].Model != null)
 			{
 				Model = plots[PlotIndex].Model;
 				IsEnabledOptions = true;
+				isSmooth = plots[PlotIndex].isSmooth;
 			}
 			else
 			{
@@ -310,18 +334,21 @@ namespace PlotApp
 		/// </summary>
 		private void UpdatePlot()
 		{
-			if (plot.Plot.PlottableList.Count == 0 || plot.Plot.PlottableList.Count - 1 < PlotIndex)
+			var scatters = plot.Plot.PlottableList.Where((i) => i.GetType() == typeof(Scatter)).ToList();
+			if (scatters.Count == 0 || scatters.Count - 1 < PlotIndex)
 			{
-				var scat = plot.Plot.Add.Scatter(plots[PlotIndex].Coordinates.ToArray());
+				var scat = plot.Plot.Add.ScatterLine(plots[PlotIndex].Coordinates.ToArray());
 				plots[PlotIndex].PlotColor = scat.Color;
 				plots[PlotIndex].Pattern = LinePattern.Solid;
 			}
 			else
 			{
+				
 				var scat = new Scatter(new ScatterSourceCoordinatesArray(plots[PlotIndex].Coordinates.ToArray()));
+				scat.MarkerSize = 0;
 				scat.Color = plots[PlotIndex].PlotColor;
 				scat.LinePattern = plots[PlotIndex].Pattern;
-				plot.Plot.PlottableList[PlotIndex] = scat;
+				plot.Plot.PlottableList[indexInPlotList] = scat;
 			}
 			plot.Refresh();
 		}
@@ -336,23 +363,41 @@ namespace PlotApp
 			{
 				case UPDATE_MODE.Color:
 					{
-						(plot.Plot.PlottableList[PlotIndex] as Scatter).Color = plots[PlotIndex].PlotColor;
+						(plot.Plot.PlottableList[indexInPlotList] as Scatter).Color = plots[PlotIndex].PlotColor;
 						break;
 					}
 				case UPDATE_MODE.Pattern:
 					{
-						(plot.Plot.PlottableList[PlotIndex] as Scatter).LinePattern = plots[PlotIndex].Pattern;
+						(plot.Plot.PlottableList[indexInPlotList] as Scatter).LinePattern = plots[PlotIndex].Pattern;
 						break;
 					}
 			}
 			plot.Refresh();
 		}
 
-		private void InitSpline()
+		void InitSpline()
 		{
 			var xs = plots[PlotIndex].Model.Select(p => (double)p.X);
 			var ys = plots[PlotIndex].Model.Select(p => (double)p.Y);
 			plots[PlotIndex].spline = (CubicSpline)Interpolate.CubicSpline(xs, ys);
+		}
+		/// <summary>
+		/// Поиск индекса текущего графика в списке графиков ScottPlot по содержимому
+		/// </summary>
+		void FindIndexOfPlot()
+		{
+			indexInPlotList = plot.Plot.PlottableList.FindIndex(i =>
+			{
+				var scatter = i as Scatter;
+				var dataPoints = (scatter?.Data as ScatterSourceCoordinatesArray)?.GetScatterPoints();
+				if (dataPoints == null) return false;
+
+				// Преобразуем обе последовательности в кортеж (double X, double Y) и сравниваем элемент-о-элемент
+				var seq1 = dataPoints.Select(p => (X: p.X, Y: p.Y));
+				var seq2 = plots[PlotIndex].Coordinates.Select(c => ((double)c.X, (double)c.Y));
+
+				return seq1.SequenceEqual(seq2);
+			});
 		}
 	}
 }
