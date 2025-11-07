@@ -218,6 +218,13 @@ namespace PlotApp
 			plots[PlotIndex].Pattern = LinePattern.DenselyDashed;
 			UpdatePlot(UPDATE_MODE.Pattern);
 		}
+
+		public void DotLine()
+		{
+			FindIndexOfPlot();
+			plots[PlotIndex].Pattern = LinePattern.Dotted;
+			UpdatePlot(UPDATE_MODE.Pattern);
+		}
 		public void UndashLine()
 		{
 			FindIndexOfPlot();

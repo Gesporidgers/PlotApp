@@ -62,6 +62,7 @@ namespace PlotApp
 				}
 
 			};
+			AppWindow.TitleBar.PreferredTheme = Microsoft.UI.Windowing.TitleBarTheme.UseDefaultAppMode;
 			mainplot.Menu?.Clear();
 			mainplot.Menu?.Add("Вписать", (s) => { s.Axes.AutoScale(); });
 			mainplot.Menu?.Add("Скопировать", (s) =>

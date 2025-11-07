@@ -77,6 +77,7 @@
             <TextBlock Text="Стиль линии:" VerticalAlignment="Center" Margin="20 0 0 0"/>
             <RadioButton IsEnabled="{x:Bind _viewModel.IsEnabledOptions, Mode=OneWay}" Content="Сплошная" Checked="{x:Bind _viewModel.UndashLine}"/>
             <RadioButton IsEnabled="{x:Bind _viewModel.IsEnabledOptions, Mode=OneWay}" Content="Пунктирная" Checked="{x:Bind _viewModel.DashLine}"/>
+            <RadioButton IsEnabled="{x:Bind _viewModel.IsEnabledOptions, Mode=OneWay}" Content="Точечная" Checked="{x:Bind _viewModel.DotLine}"/>
         </StackPanel>
     </Grid>
 </Window>
