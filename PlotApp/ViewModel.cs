@@ -399,11 +399,7 @@ namespace PlotApp
 				var dataPoints = (scatter?.Data as ScatterSourceCoordinatesArray)?.GetScatterPoints();
 				if (dataPoints == null) return false;
 
-				// Преобразуем обе последовательности в кортеж (double X, double Y) и сравниваем элемент-о-элемент
-				var seq1 = dataPoints.Select(p => (X: p.X, Y: p.Y));
-				var seq2 = plots[PlotIndex].Coordinates.Select(c => ((double)c.X, (double)c.Y));
-
-				return seq1.SequenceEqual(seq2);
+				return dataPoints.SequenceEqual(plots[PlotIndex].Coordinates);
 			});
 		}
 	}
