@@ -134,12 +134,16 @@ namespace PlotApp
 
 							(mainplot.Plot.Axes.Bottom as BottomAxis).LabelText = content.EnteredText;
 							(mainplot.Plot.Axes.Bottom as BottomAxis).LabelFontName = ClassParameters.FontName;
+							(mainplot.Plot.Axes.Bottom as BottomAxis).LabelFontSize = ClassParameters.LegendFontSize;
+							(mainplot.Plot.Axes.Bottom as BottomAxis).LabelBold = false;
 							break;
 						}
 					case "Y":
 						{
 							(mainplot.Plot.Axes.Left as LeftAxis).LabelText = content.EnteredText;
 							(mainplot.Plot.Axes.Left as LeftAxis).LabelFontName = ClassParameters.FontName;
+							(mainplot.Plot.Axes.Left as LeftAxis).LabelFontSize = ClassParameters.LegendFontSize;
+							(mainplot.Plot.Axes.Left as LeftAxis).LabelBold = false;
 							break;
 						}
 					case "Series":

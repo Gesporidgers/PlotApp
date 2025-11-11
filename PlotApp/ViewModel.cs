@@ -157,11 +157,11 @@ namespace PlotApp
 					InitSpline();
 
 			}
-			Model.Add(new DataItem());
+			Model.Add(new DataItem());			// добавим точку в view, а потом в модели
 			plots[PlotIndex].Coordinates.Add(new DataItem());
 			plots[PlotIndex].Model.Add(new DataItem());
 			IsEnabledOptions = true;
-			Model[Model.Count - 1].PropertyChanged += (s, e) =>
+			Model[Model.Count - 1].PropertyChanged += (s, e) =>               // при изменении точки во view менять и в model
 			{
 				if (isSmooth)
 					UnsetSmooth();
@@ -290,7 +290,7 @@ namespace PlotApp
 					Content = "Не удалось импортировать данные из файла. Проверьте правильность формата данных в файле.",
 					CloseButtonText = "ОК",
 					XamlRoot = plot.XamlRoot,
-					
+
 				};
 				contentDialog.ShowAsync();
 			}
@@ -302,20 +302,20 @@ namespace PlotApp
 		{
 			PlotIndex++;
 			Selected = $"{PlotIndex + 1}/{plots.Count}";
-			if (plots.Count - 1 < PlotIndex)
+			if (plots.Count - 1 < PlotIndex)		// если новый индекс больше количества графиков, то создаём новый элемент в списке
 			{
 				plots.Add(new Grafik());
-				indexInPlotList++;
 				IsEnabledOptions = false;
 				isSmooth = false;
 			}
-			if (plots[PlotIndex].Model != null)
+			if (plots[PlotIndex].Model != null)		// если график по этому индексу создан, то выводим во view все его данные
 			{
 				Model = plots[PlotIndex].Model;
 				IsEnabledOptions = true;
 				isSmooth = plots[PlotIndex].isSmooth;
+				FindIndexOfPlot();
 			}
-			else
+			else                                    // если нет, то иничиализируем таблицу
 			{
 				Model = new ObservableCollection<DataItem>();
 			}
@@ -330,14 +330,28 @@ namespace PlotApp
 				Model = plots[PlotIndex].Model;
 				isSmooth = plots[PlotIndex].isSmooth;
 				IsEnabledOptions = plots[PlotIndex].Model.Count > 0;
+				FindIndexOfPlot() ;
 			}
 		}
 		// Сделать проверку на удаление единственного графика
 		// Сделать если удаление происходит первого графика из двух потому что индекс также будет -1
 		public void DeletePlot()
 		{
-			plots.RemoveAt(PlotIndex);
-			PrevPlot();
+			if (PlotIndex == 0 && plots.Count == 1)
+			{
+				plots.RemoveAt(PlotIndex);
+				Model = null;
+				plots.Add(new());
+			}
+			else if (plots.Count > 1)
+			{
+				plots[PlotIndex] = plots[PlotIndex + 1];
+				plots.RemoveAt(PlotIndex+1);
+				Selected = $"{PlotIndex + 1}/{plots.Count}";
+				Model = plots[PlotIndex].Model;
+				isSmooth = plots[PlotIndex].isSmooth;
+				IsEnabledOptions = plots[PlotIndex].Model.Count > 0;
+			}
 			plot.Plot.PlottableList.RemoveAt(indexInPlotList);
 			plot.Refresh();
 		}
@@ -365,7 +379,7 @@ namespace PlotApp
 			}
 			else
 			{
-				
+
 				var scat = new Scatter(new ScatterSourceCoordinatesArray(plots[PlotIndex].Coordinates.ToArray()));
 				scat.MarkerSize = 0;
 				scat.Color = plots[PlotIndex].PlotColor;

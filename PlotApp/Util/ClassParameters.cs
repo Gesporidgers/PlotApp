@@ -15,7 +15,7 @@ namespace PlotApp.Util
 		public static readonly SKColor s_gray2 = new(90, 90, 90);
 		public static readonly SKColor s_dark3 = new(60, 60, 60);
 		public static readonly string FontName = "Times New Roman";
-		public static readonly int LegendFontSize = 20;
+		public static readonly int LegendFontSize = 16;
 		
 }
 }
