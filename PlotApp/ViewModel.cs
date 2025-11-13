@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace PlotApp
 {
@@ -213,17 +214,23 @@ namespace PlotApp
 		}
 
 		// Надо бы прикрутить флаг для того чтобы не использовать эти функции когда количество точек меньше 4 (?)
-		public void SetSmooth()
+		public async void SetSmooth()
 		{
 			// Найти индекс scatter по содержимому коллекции, а не по ссылке
 			if (isSmooth) return;
 			FindIndexOfPlot();
 			plots[PlotIndex].Coordinates.Clear();
-			for (double i = plots[PlotIndex].Model[0].X; i <= plots[PlotIndex].Model[Model.Count - 1].X; i += 0.125)
+			List<Coordinates> coords = new List<Coordinates>();
+			await Task.Run(() =>
 			{
-				double y = plots[PlotIndex].spline.Interpolate(i);
-				plots[PlotIndex].Coordinates.Add(new Coordinates(i, y));
-			}
+				for (double i = plots[PlotIndex].Model[0].X; i <= plots[PlotIndex].Model[Model.Count - 1].X; i += 0.125)
+				{
+					double y = plots[PlotIndex].spline.Interpolate(i);
+					coords.Add(new Coordinates(i, y));
+				}
+			});
+			plots[PlotIndex].Coordinates = new ObservableCollection<Coordinates>(coords);
+			plots[PlotIndex].Coordinates.CollectionChanged += (s, e) => { UpdatePlot(); };
 			isSmooth = true;
 			UpdatePlot();
 		}
@@ -282,7 +289,7 @@ namespace PlotApp
 						{
 							UpdatePlot();
 						};
-						InitSpline();
+						
 						UpdatePlot();
 					}
 					else
@@ -296,6 +303,11 @@ namespace PlotApp
 							plots[PlotIndex].Coordinates.Add(new Coordinates(item.X, item.Y));
 						}
 						UpdatePlot();
+					}
+					if (data.Count > 3)
+					{
+						InitSpline();
+						CanInterpolate = true;
 					}
 					IsEnabledOptions = true;
 					Selected = $"{PlotIndex + 1}/{plots.Count}";
