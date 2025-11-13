@@ -15,7 +15,14 @@ namespace PlotApp.Util
 		public static readonly SKColor s_gray2 = new(90, 90, 90);
 		public static readonly SKColor s_dark3 = new(60, 60, 60);
 		public static readonly string FontName = "Times New Roman";
-		public static readonly int LegendFontSize = 16;
+		/// <summary>
+		/// Размер шрифта легенды и названия осей
+		/// </summary>
+		public static readonly int FontSize = 20;
+		/// <summary>
+		/// Размер шрифта отметок на осях
+		/// </summary>
+		public static readonly int TicksFontSize = 14;
 		
 }
 }

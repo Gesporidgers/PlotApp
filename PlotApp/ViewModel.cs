@@ -35,6 +35,7 @@ namespace PlotApp
 		private bool _isSmooth = false;
 		private bool _toggleLegend = false;
 		private bool _isEnabledOptions = false;
+		private bool _canInterpolate = false;
 		private string _selected;
 		private string _selectedPoint;
 		private int _selInd;
@@ -92,6 +93,15 @@ namespace PlotApp
 			{
 				_isEnabledOptions = value;
 				OnPropertyChanged(nameof(IsEnabledOptions));
+			}
+		}
+		public bool CanInterpolate
+		{
+			get => _canInterpolate;
+			set
+			{
+				_canInterpolate = value;
+				OnPropertyChanged(nameof(CanInterpolate));
 			}
 		}
 		public int SelInd
@@ -153,13 +163,18 @@ namespace PlotApp
 					UpdatePlot();
 				};
 				PlotVisibility = Visibility.Visible;
-				if (plots[PlotIndex].Model.Count > 2)
-					InitSpline();
+				
+
 
 			}
-			Model.Add(new DataItem());			// добавим точку в view, а потом в модели
+			Model.Add(new DataItem());          // добавим точку в view, а потом в модели
 			plots[PlotIndex].Coordinates.Add(new DataItem());
 			plots[PlotIndex].Model.Add(new DataItem());
+			if (plots[PlotIndex].Model.Count > 3)
+			{
+				CanInterpolate = true;
+				InitSpline();
+			}
 			IsEnabledOptions = true;
 			Model[Model.Count - 1].PropertyChanged += (s, e) =>               // при изменении точки во view менять и в model
 			{
@@ -168,7 +183,11 @@ namespace PlotApp
 				plots[PlotIndex].Model[SelInd] = Model[SelInd];
 				plots[PlotIndex].Coordinates[SelInd] = plots[PlotIndex].Model[SelInd];
 				if (Model.Count > 3)
+				{
+					CanInterpolate = true;
 					InitSpline();
+				}
+
 			};
 			Selected = $"{PlotIndex + 1}/{plots.Count}";
 		}
@@ -178,6 +197,17 @@ namespace PlotApp
 			plots[PlotIndex].Model.RemoveAt(index);
 			Model.RemoveAt(index);
 			plots[PlotIndex].Coordinates.RemoveAt(index);
+			UnsetSmooth();
+			if (Model.Count > 3)
+			{
+				CanInterpolate = true;
+				InitSpline();
+			}
+			else
+			{
+				plots[PlotIndex].spline = null;
+				CanInterpolate = false;
+			}
 			if (Model.Count == 0)
 				IsEnabledOptions = false;
 		}
@@ -302,13 +332,13 @@ namespace PlotApp
 		{
 			PlotIndex++;
 			Selected = $"{PlotIndex + 1}/{plots.Count}";
-			if (plots.Count - 1 < PlotIndex)		// если новый индекс больше количества графиков, то создаём новый элемент в списке
+			if (plots.Count - 1 < PlotIndex)        // если новый индекс больше количества графиков, то создаём новый элемент в списке
 			{
 				plots.Add(new Grafik());
 				IsEnabledOptions = false;
 				isSmooth = false;
 			}
-			if (plots[PlotIndex].Model != null)		// если график по этому индексу создан, то выводим во view все его данные
+			if (plots[PlotIndex].Model != null)     // если график по этому индексу создан, то выводим во view все его данные
 			{
 				Model = plots[PlotIndex].Model;
 				IsEnabledOptions = true;
@@ -330,7 +360,7 @@ namespace PlotApp
 				Model = plots[PlotIndex].Model;
 				isSmooth = plots[PlotIndex].isSmooth;
 				IsEnabledOptions = plots[PlotIndex].Model.Count > 0;
-				FindIndexOfPlot() ;
+				FindIndexOfPlot();
 			}
 		}
 		// Сделать проверку на удаление единственного графика
@@ -346,7 +376,7 @@ namespace PlotApp
 			else if (plots.Count > 1)
 			{
 				plots[PlotIndex] = plots[PlotIndex + 1];
-				plots.RemoveAt(PlotIndex+1);
+				plots.RemoveAt(PlotIndex + 1);
 				Selected = $"{PlotIndex + 1}/{plots.Count}";
 				Model = plots[PlotIndex].Model;
 				isSmooth = plots[PlotIndex].isSmooth;

@@ -40,8 +40,11 @@ namespace PlotApp
 			mainplot.Plot.Legend.FontName = ClassParameters.FontName;
 			mainplot.Plot.Axes.Left.TickLabelStyle.FontName = ClassParameters.FontName;
 			mainplot.Plot.Axes.Bottom.TickLabelStyle.FontName = ClassParameters.FontName;
+			mainplot.Plot.Axes.Left.TickLabelStyle.FontSize = ClassParameters.TicksFontSize;
+			mainplot.Plot.Axes.Bottom.TickLabelStyle.FontSize = ClassParameters.TicksFontSize;
 			mainplot.Plot.Legend.Alignment = Alignment.LowerCenter;
-			mainplot.Plot.Legend.FontSize = ClassParameters.LegendFontSize;
+			mainplot.Plot.Legend.FontSize = ClassParameters.FontSize;
+			mainplot.Plot.Axes.ContinuouslyAutoscale = true;
 			Crosshair center = mainplot.Plot.Add.Crosshair(0, 0);
 			center.LineColor = ScottPlot.Color.FromSKColor(ClassParameters.s_gray2);
 			List<IPlottable> scatters;
@@ -134,7 +137,7 @@ namespace PlotApp
 
 							(mainplot.Plot.Axes.Bottom as BottomAxis).LabelText = content.EnteredText;
 							(mainplot.Plot.Axes.Bottom as BottomAxis).LabelFontName = ClassParameters.FontName;
-							(mainplot.Plot.Axes.Bottom as BottomAxis).LabelFontSize = ClassParameters.LegendFontSize;
+							(mainplot.Plot.Axes.Bottom as BottomAxis).LabelFontSize = ClassParameters.FontSize;
 							(mainplot.Plot.Axes.Bottom as BottomAxis).LabelBold = false;
 							break;
 						}
@@ -142,7 +145,7 @@ namespace PlotApp
 						{
 							(mainplot.Plot.Axes.Left as LeftAxis).LabelText = content.EnteredText;
 							(mainplot.Plot.Axes.Left as LeftAxis).LabelFontName = ClassParameters.FontName;
-							(mainplot.Plot.Axes.Left as LeftAxis).LabelFontSize = ClassParameters.LegendFontSize;
+							(mainplot.Plot.Axes.Left as LeftAxis).LabelFontSize = ClassParameters.FontSize;
 							(mainplot.Plot.Axes.Left as LeftAxis).LabelBold = false;
 							break;
 						}
