@@ -404,6 +404,7 @@ namespace PlotApp
 			if (scatters.Count == 0 || scatters.Count - 1 < PlotIndex)
 			{
 				var scat = plot.Plot.Add.ScatterLine(plots[PlotIndex].Coordinates.ToArray());
+				scat.LineWidth = 2;
 				plots[PlotIndex].PlotColor = scat.Color;
 				plots[PlotIndex].Pattern = LinePattern.Solid;
 			}
@@ -411,6 +412,7 @@ namespace PlotApp
 			{
 
 				var scat = new Scatter(new ScatterSourceCoordinatesArray(plots[PlotIndex].Coordinates.ToArray()));
+				scat.LineWidth = 2;
 				scat.MarkerSize = 0;
 				scat.Color = plots[PlotIndex].PlotColor;
 				scat.LinePattern = plots[PlotIndex].Pattern;
