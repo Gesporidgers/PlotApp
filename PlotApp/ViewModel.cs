@@ -273,7 +273,7 @@ namespace PlotApp
 		}
 
 		// Будем делать импорт из CSV. Также можно и json (но вряд-ли нужно
-		public void Import(string path)
+		public async void Import(string path)
 		{
 			try
 			{
@@ -321,7 +321,7 @@ namespace PlotApp
 						CloseButtonText = "ОК",
 						XamlRoot = plot.XamlRoot
 					};
-					contentDialog.ShowAsync();
+					await contentDialog.ShowAsync();
 				}
 			}
 			catch (Exception)
@@ -334,7 +334,7 @@ namespace PlotApp
 					XamlRoot = plot.XamlRoot,
 
 				};
-				contentDialog.ShowAsync();
+				await contentDialog.ShowAsync();
 			}
 
 		}
