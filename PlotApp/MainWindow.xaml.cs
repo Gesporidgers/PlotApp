@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -6,6 +7,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Navigation;
 using Microsoft.Windows.Storage.Pickers;
+using NLog.Extensions.Logging;
 using PlotApp.Dialogs;
 using PlotApp.Model;
 using PlotApp.Util;
@@ -29,12 +31,14 @@ namespace PlotApp
 	public sealed partial class MainWindow : Window
 	{
 		private ViewModel _viewModel;
+		ILogger logger;
 		/// <summary>
 		/// Производим настройки окна с графиком и добавляем перекрестье в 0,0
 		/// Также добавляем событие для отображения ближайших к курсору координат
 		/// </summary>
 		public MainWindow()
 		{
+			logger = LoggerFactory.Create(builder => builder.AddNLog()).CreateLogger("SVG Log");
 			InitializeComponent();
 			_viewModel = new ViewModel(ref mainplot);
 			mainplot.Plot.Legend.FontName = ClassParameters.FontName;
@@ -71,7 +75,14 @@ namespace PlotApp
 			mainplot.Menu?.Add("Вписать", (s) => { s.Axes.AutoScale(); });
 			mainplot.Menu?.Add("Скопировать", (s) =>
 			{
-				SvgClipboardHelper.SetSvg(s.GetSvgHtml(900, _viewModel.ToggleLegend ? 610 : 540));
+				try
+				{
+					SvgClipboardHelper.SetSvg(s.GetSvgHtml(900, _viewModel.ToggleLegend ? 610 : 540));
+				}
+				catch (Exception ex)
+				{
+					logger.LogError(ex, "Error in svg copy");
+				}
 			});
 		}
 
@@ -130,6 +141,7 @@ namespace PlotApp
 			if (sender is ContentDialog dialog)
 			{
 				var content = dialog.Content as EnterName;
+				if (content.EnteredText == string.Empty || content.EnteredText == null) return;
 				switch (dialog.Name)
 				{
 					case "X":
