@@ -1,10 +1,12 @@
 ﻿
 using MathNet.Numerics;
 using MathNet.Numerics.Interpolation;
+using Microsoft.Extensions.Logging;
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Windows.Storage.Pickers;
+using NLog.Extensions.Logging;
 using PlotApp.Model;
 using PlotApp.Util;
 using ScottPlot;
@@ -41,6 +43,9 @@ namespace PlotApp
 		private string _selectedPoint;
 		private int _selInd;
 		private List<Grafik> plots = new List<Grafik>();
+
+		private ILogger logger;
+
 		public ObservableCollection<DataItem> Model
 		{
 			get => _model;
@@ -164,7 +169,7 @@ namespace PlotApp
 					UpdatePlot();
 				};
 				PlotVisibility = Visibility.Visible;
-				
+
 
 
 			}
@@ -289,7 +294,7 @@ namespace PlotApp
 						{
 							UpdatePlot();
 						};
-						
+
 						UpdatePlot();
 					}
 					else
@@ -314,6 +319,7 @@ namespace PlotApp
 				}
 				else
 				{
+					logger.LogWarning("Попытка импорта пустого файла");
 					ContentDialog contentDialog = new ContentDialog()
 					{
 						Title = "Ошибка импорта",
@@ -322,19 +328,37 @@ namespace PlotApp
 						XamlRoot = plot.XamlRoot
 					};
 					await contentDialog.ShowAsync();
+					
 				}
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
-				ContentDialog contentDialog = new ContentDialog()
+				if (ex.Source != "CsvHelper")
 				{
-					Title = "Ошибка импорта",
-					Content = "Не удалось импортировать данные из файла. Проверьте правильность формата данных в файле.",
-					CloseButtonText = "ОК",
-					XamlRoot = plot.XamlRoot,
+					logger.LogError(ex, "Ошибка обработки уже импортированных данных" + $"PlotIndex:{PlotIndex}");
+					ContentDialog contentDialog = new ContentDialog()
+					{
+						Title = "Ошибка",
+						Content = ex.Message,
+						CloseButtonText = "ОК",
+						XamlRoot = plot.XamlRoot,
 
-				};
-				await contentDialog.ShowAsync();
+					};
+					await contentDialog.ShowAsync();
+				}
+				else
+				{
+					logger.LogWarning("Попытка импорта неправильного формата данных");
+					ContentDialog contentDialog = new ContentDialog()
+					{
+						Title = "Ошибка импорта",
+						Content = "Не удалось импортировать данные из файла. Проверьте правильность формата данных в файле.",
+						CloseButtonText = "ОК",
+						XamlRoot = plot.XamlRoot,
+
+					};
+					await contentDialog.ShowAsync();
+				}
 			}
 
 		}
@@ -363,7 +387,7 @@ namespace PlotApp
 			}
 
 		}
-		public void PrevPlot()
+		public async void PrevPlot()
 		{
 			if (PlotIndex > 0)
 			{
@@ -371,36 +395,103 @@ namespace PlotApp
 				Selected = $"{PlotIndex + 1}/{plots.Count}";
 				Model = plots[PlotIndex].Model;
 				isSmooth = plots[PlotIndex].isSmooth;
-				IsEnabledOptions = plots[PlotIndex].Model.Count > 0;
-				FindIndexOfPlot();
+				try
+				{
+					IsEnabledOptions = plots[PlotIndex].Model == null || plots[PlotIndex].Model.Count > 0;
+					FindIndexOfPlot();
+				}
+				catch (Exception ex)
+				{
+					logger.LogError(ex, "Error in PrevPlot method "+$"PlotIndex:{PlotIndex} "+$"Index in plotlist:{indexInPlotList}");
+					ContentDialog contentDialog = new ContentDialog()
+					{
+						Title = "Error",
+						Content = ex.Message,
+						CloseButtonText = "ОК",
+						XamlRoot = plot.XamlRoot,
+
+					};
+					await contentDialog.ShowAsync();
+				}
+
 			}
 		}
 		// Сделать проверку на удаление единственного графика
 		// Сделать если удаление происходит первого графика из двух потому что индекс также будет -1
-		public void DeletePlot()
+		public async void DeletePlot()
 		{
 			if (PlotIndex == 0 && plots.Count == 1)
 			{
-				plots.RemoveAt(PlotIndex);
-				Model = null;
-				plots.Add(new());
+				try
+				{
+					plots.RemoveAt(PlotIndex);
+					Model = null;
+					plots.Add(new());
+				}
+				catch (IndexOutOfRangeException ex)
+				{
+					ContentDialog contentDialog = new ContentDialog()
+					{
+						Title = "Выход за пределы массива",
+						Content = ex.Message,
+						CloseButtonText = "ОК",
+						XamlRoot = plot.XamlRoot,
+
+					};
+					await contentDialog.ShowAsync();
+					logger.LogError(ex, "Выход за пределы массива " + $"PlotIndex:{PlotIndex}");
+				}
+
 			}
 			else if (plots.Count > 1)
 			{
-				plots[PlotIndex] = plots[PlotIndex + 1];
-				plots.RemoveAt(PlotIndex + 1);
-				Selected = $"{PlotIndex + 1}/{plots.Count}";
-				Model = plots[PlotIndex].Model;
-				isSmooth = plots[PlotIndex].isSmooth;
-				IsEnabledOptions = plots[PlotIndex].Model.Count > 0;
+				try
+				{
+					plots[PlotIndex] = plots[PlotIndex + 1];
+					plots.RemoveAt(PlotIndex + 1);
+					Selected = $"{PlotIndex + 1}/{plots.Count}";
+					Model = plots[PlotIndex].Model;
+					isSmooth = plots[PlotIndex].isSmooth;
+					IsEnabledOptions = plots[PlotIndex].Model.Count > 0;
+				}
+				catch (IndexOutOfRangeException ex)
+				{
+					logger.LogError(ex, "Выход за пределы массива" + $"PlotIndex:{PlotIndex}");
+					ContentDialog contentDialog = new ContentDialog()
+					{
+						Title = "Выход за пределы массива",
+						Content = ex.Message,
+						CloseButtonText = "ОК",
+						XamlRoot = plot.XamlRoot,
+
+					};
+					await contentDialog.ShowAsync();
+				}
+
 			}
-			plot.Plot.PlottableList.RemoveAt(indexInPlotList);
-			plot.Refresh();
+			try
+			{
+				plot.Plot.PlottableList.RemoveAt(indexInPlotList);
+				plot.Refresh();
+			}
+			catch (Exception ex)
+			{
+				logger.LogError(ex, "Невозможно удалить из списка отрисованных " + $"Index in plotlist:{indexInPlotList}");
+			}
+
+
 		}
 
 		// Также не забыть про копию графика в буфер обмена
 		public ViewModel(ref WinUIPlot plot)
 		{
+			using ILoggerFactory factory = LoggerFactory.Create(builder => builder.AddNLog());
+			var config = new NLog.Config.LoggingConfiguration();
+			var logfile = new NLog.Targets.FileTarget("logfile") { FileName = $"{DateTime.Now.ToString("s")}.log" };
+			config.AddRule(NLog.LogLevel.Info, NLog.LogLevel.Fatal, logfile);
+			NLog.LogManager.Configuration = config;
+			logger = factory.CreateLogger(typeof(ViewModel));
+			//logger.LogInformation("Program started");
 			this.plot = plot;
 			plots.Add(new Grafik());
 			Selected = $"{PlotIndex + 1}/{plots.Count}";
@@ -466,6 +557,7 @@ namespace PlotApp
 		/// </summary>
 		void FindIndexOfPlot()
 		{
+			if (plots[PlotIndex].Model == null) return;
 			indexInPlotList = plot.Plot.PlottableList.FindIndex(i =>
 			{
 				var scatter = i as Scatter;
