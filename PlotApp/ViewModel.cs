@@ -226,14 +226,24 @@ namespace PlotApp
 			FindIndexOfPlot();
 			plots[PlotIndex].Coordinates.Clear();
 			List<Coordinates> coords = new List<Coordinates>();
-			await Task.Run(() =>
-			{
-				for (double i = plots[PlotIndex].Model[0].X; i <= plots[PlotIndex].Model[Model.Count - 1].X; i += 0.125)
+			if (plots[PlotIndex].Model[0].X < plots[PlotIndex].Model[Model.Count - 1].X)
+				await Task.Run(() =>
 				{
-					double y = plots[PlotIndex].spline.Interpolate(i);
-					coords.Add(new Coordinates(i, y));
-				}
-			});
+					for (double i = plots[PlotIndex].Model[0].X; i <= plots[PlotIndex].Model[Model.Count - 1].X; i += 0.125)
+					{
+						double y = plots[PlotIndex].spline.Interpolate(i);
+						coords.Add(new Coordinates(i, y));
+					}
+				});
+			else
+				await Task.Run(() =>
+				{
+					for (double i = plots[PlotIndex].Model[Model.Count - 1].X; i <= plots[PlotIndex].Model[0].X; i += 0.125)
+					{
+						double y = plots[PlotIndex].spline.Interpolate(i);
+						coords.Add(new Coordinates(i, y));
+					}
+				});
 			plots[PlotIndex].Coordinates = new ObservableCollection<Coordinates>(coords);
 			plots[PlotIndex].Coordinates.CollectionChanged += (s, e) => { UpdatePlot(); };
 			isSmooth = true;
@@ -328,7 +338,7 @@ namespace PlotApp
 						XamlRoot = plot.XamlRoot
 					};
 					await contentDialog.ShowAsync();
-					
+
 				}
 			}
 			catch (Exception ex)
@@ -402,7 +412,7 @@ namespace PlotApp
 				}
 				catch (Exception ex)
 				{
-					logger.LogError(ex, "Error in PrevPlot method "+$"PlotIndex:{PlotIndex} "+$"Index in plotlist:{indexInPlotList}");
+					logger.LogError(ex, "Error in PrevPlot method " + $"PlotIndex:{PlotIndex} " + $"Index in plotlist:{indexInPlotList}");
 					ContentDialog contentDialog = new ContentDialog()
 					{
 						Title = "Error",

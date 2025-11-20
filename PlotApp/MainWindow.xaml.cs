@@ -48,7 +48,6 @@ namespace PlotApp
 			mainplot.Plot.Axes.Bottom.TickLabelStyle.FontSize = ClassParameters.TicksFontSize;
 			mainplot.Plot.Legend.Alignment = Alignment.LowerCenter;
 			mainplot.Plot.Legend.FontSize = ClassParameters.FontSize;
-			mainplot.Plot.Axes.ContinuouslyAutoscale = true;
 			Crosshair center = mainplot.Plot.Add.Crosshair(0, 0);
 			center.LineColor = ScottPlot.Color.FromSKColor(ClassParameters.s_gray2);
 			List<IPlottable> scatters;
