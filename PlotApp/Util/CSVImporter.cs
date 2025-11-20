@@ -14,9 +14,16 @@ namespace PlotApp.Util
 	{
 		public static List<DataItem> Import(string path)
 		{
-			var config = new CsvConfiguration(System.Globalization.CultureInfo.InvariantCulture)
+			bool nonStandartFormat = File.ReadAllText(path).Contains(';');
+			CsvConfiguration config;
+			config = nonStandartFormat ? new CsvConfiguration(System.Globalization.CultureInfo.CurrentCulture)
 			{
-				HasHeaderRecord = false
+				HasHeaderRecord = false,
+				Delimiter = ";",
+			} : new CsvConfiguration(System.Globalization.CultureInfo.InvariantCulture)
+			{
+				HasHeaderRecord = false,
+				Delimiter = ",",
 			};
 			using (StreamReader reader = new StreamReader(path))
 				using (CsvReader csv = new CsvReader(reader, config))

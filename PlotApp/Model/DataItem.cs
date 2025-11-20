@@ -4,6 +4,7 @@ using ScottPlot;
 
 namespace PlotApp.Model
 {
+	[Delimiter(";")]
 	public class DataItem : BindHelper
 	{
 		private float _x, _y;
