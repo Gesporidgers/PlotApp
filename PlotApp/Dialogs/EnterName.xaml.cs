@@ -28,6 +28,12 @@ namespace PlotApp.Dialogs
 			InitializeComponent();
 		}
 
+		public EnterName(string name)
+		{
+			InitializeComponent();
+			_enteredText.Text = name;
+		}
+
 		public string EnteredText
 		{
 			get => _enteredText.Text;

@@ -110,7 +110,10 @@ namespace PlotApp
 			contentDialog.XamlRoot = (sender as MenuFlyoutItem).XamlRoot;
 			contentDialog.Name = "X";
 			contentDialog.Title = "Введите название оси X";
-			contentDialog.Content = new EnterName();
+			if ((mainplot.Plot.Axes.Bottom as BottomAxis).LabelText != string.Empty)
+				contentDialog.Content = new EnterName((mainplot.Plot.Axes.Bottom as BottomAxis).LabelText);
+			else
+				contentDialog.Content = new EnterName();
 			contentDialog.PrimaryButtonText = "OK";
 			contentDialog.PrimaryButtonStyle = Application.Current.Resources["AccentButtonStyle"] as Style;
 			contentDialog.PrimaryButtonClick += EnterAxisName;
@@ -125,7 +128,10 @@ namespace PlotApp
 			contentDialog.XamlRoot = (sender as MenuFlyoutItem).XamlRoot;
 			contentDialog.Name = "Y";
 			contentDialog.Title = "Введите название оси Y";
-			contentDialog.Content = new EnterName();
+			if ((mainplot.Plot.Axes.Left as LeftAxis).LabelText != string.Empty)
+				contentDialog.Content = new EnterName((mainplot.Plot.Axes.Left as LeftAxis).LabelText);
+			else
+				contentDialog.Content = new EnterName();
 			contentDialog.PrimaryButtonText = "OK";
 			contentDialog.PrimaryButtonStyle = Application.Current.Resources["AccentButtonStyle"] as Style;
 			contentDialog.PrimaryButtonClick += EnterAxisName;
@@ -183,7 +189,10 @@ namespace PlotApp
 			contentDialog.XamlRoot = (sender as MenuFlyoutItem).XamlRoot;
 			contentDialog.Name = "Series";
 			contentDialog.Title = "Введите название графика";
-			contentDialog.Content = new EnterName();
+			if ((mainplot.Plot.PlottableList[_viewModel.IndexInPlotList] as Scatter).LegendText != string.Empty)
+				contentDialog.Content = new EnterName((mainplot.Plot.PlottableList[_viewModel.IndexInPlotList] as Scatter).LegendText);
+			else
+				contentDialog.Content = new EnterName();
 			contentDialog.PrimaryButtonText = "OK";
 			contentDialog.PrimaryButtonStyle = Application.Current.Resources["AccentButtonStyle"] as Style;
 			contentDialog.PrimaryButtonClick += EnterAxisName;

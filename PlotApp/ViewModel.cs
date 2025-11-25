@@ -529,6 +529,7 @@ namespace PlotApp
 				scat.MarkerSize = 0;
 				scat.Color = plots[PlotIndex].PlotColor;
 				scat.LinePattern = plots[PlotIndex].Pattern;
+				scat.LegendText = (plot.Plot.PlottableList[indexInPlotList] as Scatter).LegendText;
 				plot.Plot.PlottableList[indexInPlotList] = scat;
 			}
 			plot.Refresh();
